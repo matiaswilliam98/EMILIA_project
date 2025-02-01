@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2020", // La versión de ECMAScript de salida
+    "module": "CommonJS", // El tipo de módulo, usualmente CommonJS para Node.js
+    "strict": true, // Habilita todas las opciones estrictas (recomendado)
+    "esModuleInterop": true, // Permite la interoperabilidad con módulos ES
+    "skipLibCheck": true, // Omite la verificación de tipos en las bibliotecas
+    "forceConsistentCasingInFileNames": true, // Asegura que el uso de mayúsculas/minúsculas sea consistente
+    "outDir": "./dist", // Carpeta de salida de los archivos compilados
+    "rootDir": "./src" // Carpeta raíz donde se encuentran tus archivos TypeScript
+  },
+  "include": [
+    "src/**/*" // Incluir todos los archivos TypeScript dentro de la carpeta src
+  ],
+  "exclude": [
+    "node_modules" // Excluir la carpeta node_modules
+  ]
+}

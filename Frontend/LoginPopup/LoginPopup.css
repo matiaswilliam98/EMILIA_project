@@ -1,0 +1,128 @@
+/* Estilo general del popup */
+.login-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  padding: 20px;
+  width: 400px;
+  box-shadow: 0 0 10px rgba(255, 145, 0, 0.589);
+  z-index: 1000;
+  border-radius: 10px;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Fondo oscuro que cubre todo lo demás */
+.login-popup::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.863);
+  z-index: -1;
+}
+
+/* Botón de cerrar */
+.close-button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.close-button:hover {
+  color: #ff9900;
+}
+
+/* Estilización de las pestañas */
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.tabs button {
+  background: none;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 18px;
+  color: #000000;
+  margin-top: 25px;
+}
+
+.tabs button:hover {
+  background: #f5f5f52a;
+}
+
+.tabs button.active {
+  border-bottom: 3px solid #000000;
+  color: #000000;
+}
+
+/* Formulario de inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #1d1d1def;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 16px;
+  background-color: #ffffff;
+}
+
+/* Botón de envío */
+button[type="submit"] {
+  background-color: #000000;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+  background-color: #666666e3;
+}
+
+/* Mensajes de error */
+.message {
+  margin-top: 15px;
+  color: #d9534f;
+  font-weight: bold;
+}
+
+/* Efecto de fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.login-image {
+  width: 45%;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 10px 10px 0 0;
+  display: block;  /* Hace que la imagen se comporte como un bloque */
+  margin: 0 auto;  /* Centra horizontalmente */
+  margin-top: 2vw;
+}
