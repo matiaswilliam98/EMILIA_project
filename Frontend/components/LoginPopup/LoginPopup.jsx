@@ -1,7 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import { assets } from "../../assets/assets";
 import "./LoginPopup.css";
 
 const LoginPopup = ({ onClose }) => {
@@ -94,7 +93,7 @@ const LoginPopup = ({ onClose }) => {
       <button className="close-button" onClick={onClose}>
         ✖
       </button>
-      <img src={assets.logo} alt="Login Illustration" className="login-image" />
+      <img src="logo.png" alt="Login Illustration" className="login-image" />
       <div className="tabs">
         <button
           onClick={() => setIsLogin(true)}
