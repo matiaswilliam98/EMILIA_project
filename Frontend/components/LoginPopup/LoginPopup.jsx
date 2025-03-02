@@ -14,6 +14,8 @@ const LoginPopup = ({ onClose }) => {
     password: "",
     confirmPassword: "",
   });
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [termsModalOpen, setTermsModalOpen] = useState(false); // Estado del modal
   const [message, setMessage] = useState("");
 
   // URL del backend corregida
@@ -30,6 +32,11 @@ const LoginPopup = ({ onClose }) => {
   // Enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
+//validacion de que marque el checkbox
+    if (!isLogin && !acceptTerms) {
+      setMessage("Debes aceptar los términos y condiciones para registrarte.");
+      return;
+    }
 
     // Verificación de contraseñas en el frontend (pero no se envía al backend)
     if (!isLogin && formData.password !== formData.confirmPassword) {
@@ -60,8 +67,15 @@ const LoginPopup = ({ onClose }) => {
           localStorage.setItem("user", JSON.stringify(user));
           navigate("/dashboard");
         } else {
-          alert("¡Usuario registrado correctamente!");
-          onClose(); // Cierra el popup de registro
+          setMessage("¡Usuario registrado correctamente!");
+          setTimeout(() => {
+            setMessage(""); // Borra el mensaje
+            if (typeof onClose === "function") {
+              onClose();
+            }
+          }, 2500);
+          //alert("¡Usuario registrado correctamente!");
+          //onClose(); // Cierra el popup de registro
         }
       }
     } catch (error) {
@@ -72,8 +86,10 @@ const LoginPopup = ({ onClose }) => {
   };
 /////////////////////////////
   return (
-    <div className="login-popup-container">
+    <div className="login-container">
+     <div className="login-popup-container">
       <div className="login-popup">
+      {message && <div className="message">{message}</div>}
         {/* Lado izquierdo con imagen */}
         <div className="left-panel">
           <img src="personaje.png" alt="Descripción" className="login-image" />
@@ -106,6 +122,7 @@ const LoginPopup = ({ onClose }) => {
               />
             </div>
             {!isLogin && (
+               <>
               <div className="input-container">
                 <FontAwesomeIcon icon={faLock} className="input-icon" />
                 <input
@@ -117,12 +134,32 @@ const LoginPopup = ({ onClose }) => {
                   required
                 />
               </div>
+               {/* 📌 Checkbox de Términos y Condiciones */}
+               <div className="terms-container">
+                    <input
+                      type="checkbox"
+                      id="termsCheckbox"
+                      checked={acceptTerms}
+                      onChange={() => setAcceptTerms(!acceptTerms)}
+                    />
+                    <label htmlFor="termsCheckbox" className="terms-label">
+                      I accept the{" "}
+                      <button
+                        type="button"
+                        className="terms-link"
+                        onClick={() => setTermsModalOpen(true)}
+                      >
+                        terms and conditions
+                      </button>
+                    </label>
+                  </div>
+                </>
             )}
 
             <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
           </form>
 
-          {message && <p className="message">{message}</p>}
+          
 
           <div className="social-login">
             <button className="google">
@@ -141,6 +178,27 @@ const LoginPopup = ({ onClose }) => {
           </p>
         </div>
       </div>
+    </div>
+     {/* 📌 Modal de Términos y Condiciones */}
+     {termsModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p>
+              This app is a test prototype that provides emotional support and
+              protects your data. We will not share your information, and it
+              does not replace professional help.
+            </p>
+            <div className="modal-buttons">
+              <button
+                className="ok-button"
+                onClick={() => setTermsModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
