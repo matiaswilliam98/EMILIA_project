@@ -1,23 +1,27 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import axios from "axios";
 import "./LoginPopup.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 
 const LoginPopup = ({ onClose }) => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-  // Ajustamos el estado para que coincida con los campos que espera el backend.
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    nombre: "",
-    apellido: "",
-    ciudad: "",
-    dni: "",
-    telefono: "",
-    ruc: "",
+    confirmPassword: "",
   });
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [termsModalOpen, setTermsModalOpen] = useState(false); // Estado del modal
   const [message, setMessage] = useState("");
 
+  // URL del backend corregida
+  const backendUrl = "http://localhost:5000/api/auth"; 
+
+  // Manejo de inputs
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -25,177 +29,182 @@ const LoginPopup = ({ onClose }) => {
     });
   };
 
+  // Enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
+//validacion de que marque el checkbox
+    if (!isLogin && !acceptTerms) {
+      setMessage("Debes aceptar los términos y condiciones para registrarte.");
+      return;
+    }
 
-    const url = isLogin
-      ? "http://localhost:3000/auth/login"
-      : "http://localhost:3000/auth/register";
+    // Verificación de contraseñas en el frontend (pero no se envía al backend)
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      setMessage("Las contraseñas no coinciden.");
+      return;
+    }
+
+    // Solo enviamos `email` y `password` al backend
+    const requestData = {
+      email: formData.email,
+      password: formData.password,
+    };
+
+    // Definir la URL correcta
+    const url = isLogin ? `${backendUrl}/login` : `${backendUrl}/register`;
 
     try {
-      const response = await axios.post(url, formData);
-      console.log("Respuesta del servidor:", response.data);
-
-      if (isLogin && response.data.success) {
-        const { token, user } = response.data;
-
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-
-        console.log("Token guardado:", token);
-        console.log("Usuario guardado:", user);
-        // Si deseas, puedes redirigir o recargar la página:
-        // window.location.reload();
-        onClose(); // Cierra el popup después de iniciar sesión
-
-      } else if (!isLogin && response.data.success) {
-        alert("¡Usuario registrado correctamente!");
-
-        console.log("Intentando iniciar sesión automáticamente...");
-
-        // Realiza el login automático después de registrar
-        try {
-          const loginResponse = await axios.post(
-            "http://localhost:3000/auth/login",
-            {
-              email: formData.email,
-              password: formData.password,
+      console.log("📡 Enviando solicitud a:", url);
+      const response = await axios.post(url, requestData, {
+        withCredentials: true, // ✅ Si el backend usa cookies/sesiones
+        headers: { "Content-Type": "application/json" },
+      });
+      console.log("✅ Respuesta del backend:", response.data);
+      if (response.data.success) {
+        if (isLogin) {
+          const { token, user } = response.data;
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+          navigate("/dashboard");
+        } else {
+          setMessage("¡Usuario registrado correctamente!");
+          setTimeout(() => {
+            setMessage(""); // Borra el mensaje
+            if (typeof onClose === "function") {
+              onClose();
             }
-          );
-
-          if (loginResponse.data.success) {
-            const { token, user } = loginResponse.data;
-            localStorage.setItem("token", token);
-            localStorage.setItem("user", JSON.stringify(user));
-
-            console.log("Inicio de sesión automático exitoso.");
-            // Si deseas, redirige o recarga la página:
-            // window.location.reload();
-            onClose(); // Cierra el popup después del login automático
-          } else {
-            console.error("Error al iniciar sesión automáticamente.");
-          }
-        } catch (loginError) {
-          console.error(
-            "Error al iniciar sesión automático:",
-            loginError.message
-          );
+          }, 2500);
+          //alert("¡Usuario registrado correctamente!");
+          //onClose(); // Cierra el popup de registro
         }
       }
     } catch (error) {
-      console.error("Error en el registro/inicio de sesión:", error.message);
+      console.error("❌ Error en la solicitud:", error.response?.status, error.response?.data);
       setMessage(error.response?.data?.message || "Error en la solicitud.");
     }
+    ///
   };
-
+/////////////////////////////
   return (
-    <div className="login-popup">
-      <button className="close-button" onClick={onClose}>
-        ✖
-      </button>
-      <img src="logo.png" alt="Login Illustration" className="login-image" />
-      <div className="tabs">
-        <button
-          onClick={() => setIsLogin(true)}
-          className={isLogin ? "active" : ""}
-        >
-          Iniciar Sesión
-        </button>
-        <button
-          onClick={() => setIsLogin(false)}
-          className={!isLogin ? "active" : ""}
-        >
-          Registrarse
-        </button>
-      </div>
+    <div className="login-container">
+     <div className="login-popup-container">
+      <div className="login-popup">
+      {message && <div className="message">{message}</div>}
+        {/* Lado izquierdo con imagen */}
+        <div className="left-panel">
+          <img src="personaje.png" alt="Descripción" className="login-image" />
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        {!isLogin && (
-          <>
-            <input
-              type="text"
-              name="nombre"
-              placeholder="Nombre"
-              value={formData.nombre}
-              onChange={handleInputChange}
-              required
-              style={{ color: "#000000" }}
-            />
-            <input
-              type="text"
-              name="apellido"
-              placeholder="Apellido"
-              value={formData.apellido}
-              onChange={handleInputChange}
-              required
-              style={{ color: "#000000" }}
-            />
-            <input
-              type="text"
-              name="ciudad"
-              placeholder="Ciudad"
-              value={formData.ciudad}
-              onChange={handleInputChange}
-              required
-              style={{ color: "#000000" }}
-            />
-            <input
-              type="text"
-              name="dni"
-              placeholder="Número de Identidad"
-              value={formData.dni}
-              onChange={handleInputChange}
-              required
-              style={{ color: "#000000" }}
-            />
-            <input
-              type="text"
-              name="telefono"
-              placeholder="Teléfono"
-              value={formData.telefono}
-              onChange={handleInputChange}
-              required
-              style={{ color: "#000000" }}
-            />
-            <input
-              type="text"
-              name="ruc"
-              placeholder="RUC (Opcional)"
-              value={formData.ruc}
-              onChange={handleInputChange}
-              style={{ color: "#000000" }}
-            />
-          </>
-        )}
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo Electrónico"
-          value={formData.email}
-          onChange={handleInputChange}
-          required
-          style={{ color: "#000000" }}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          value={formData.password}
-          onChange={handleInputChange}
-          required
-          style={{ color: "#000000" }}
-        />
-        <button type="submit">
-          {isLogin ? "Iniciar Sesión" : "Registrarse"}
-        </button>
-      </form>
-      {message && <p className="message">{message}</p>}
+        {/* Lado derecho (formulario) */}
+        <div className="right-panel">
+          <h2 className="welcome-text">{isLogin ? "BIENVENIDO" : "Register"}</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="input-container">
+              <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="input-container">
+              <FontAwesomeIcon icon={faLock} className="input-icon" />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            {!isLogin && (
+               <>
+              <div className="input-container">
+                <FontAwesomeIcon icon={faLock} className="input-icon" />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+               {/* 📌 Checkbox de Términos y Condiciones */}
+               <div className="terms-container">
+                    <input
+                      type="checkbox"
+                      id="termsCheckbox"
+                      checked={acceptTerms}
+                      onChange={() => setAcceptTerms(!acceptTerms)}
+                    />
+                    <label htmlFor="termsCheckbox" className="terms-label">
+                      I accept the{" "}
+                      <button
+                        type="button"
+                        className="terms-link"
+                        onClick={() => setTermsModalOpen(true)}
+                      >
+                        terms and conditions
+                      </button>
+                    </label>
+                  </div>
+                </>
+            )}
+
+            <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
+          </form>
+
+          
+
+          <div className="social-login">
+            <button className="google">
+              <img src="/google.svg" alt="Google" className="social-icon" />
+            </button>
+            <button className="facebook">
+              <img src="/facebook.svg" alt="Facebook" className="social-icon" />
+            </button>
+          </div>
+
+          <p className="toggle-text">
+            {isLogin ? "Don't have an account?" : "Already have an account?"}
+            <button className="toggle-button" onClick={() => setIsLogin(!isLogin)}>
+              {isLogin ? "Register Now" : "Login"}
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+     {/* 📌 Modal de Términos y Condiciones */}
+     {termsModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p>
+              This app is a test prototype that provides emotional support and
+              protects your data. We will not share your information, and it
+              does not replace professional help.
+            </p>
+            <div className="modal-buttons">
+              <button
+                className="ok-button"
+                onClick={() => setTermsModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 LoginPopup.propTypes = {
-  onClose: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
 };
 
 export default LoginPopup;

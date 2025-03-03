@@ -1,17 +1,16 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import LoginPopup from "../components/LoginPopup/LoginPopup"
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "./App.css";
+import LoginPopup from "../components/LoginPopup/LoginPopup";
+import Dashboard from "../pages/Dashboard";
 function App() {
-
-
   return (
-    <>
-      <LoginPopup/>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPopup />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
