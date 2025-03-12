@@ -56,5 +56,19 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 export const logoutUser = async (userId: number) => {
-  await prisma.user.update({ where: { id: userId }, data: { token: null } });
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      throw new Error("Usuario no encontrado.");
+    }
+
+    await prisma.user.update({ where: { id: userId }, data: { token: null } });
+
+    console.log(`✅ Token eliminado para el usuario ${userId}`);
+    return { success: true, message: "Sesión cerrada exitosamente." };
+  } catch (error) {
+    console.error("❌ Error al eliminar el token:", error);
+    throw error;
+  }
 };

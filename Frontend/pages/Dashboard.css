@@ -1,23 +1,36 @@
-/* 📌 Estilos para el Dashboard */
+/* Estilos para el contenedor principal del dashboard */
 .dashboard-container {
-    background: white; /* ✅ Asegura el fondo blanco */
-    width: 100vw;
-    height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
+    height: 100vh;
+    width: 100vw;
+    background: #f3f3fc(0, 12%, 95%);
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+}
+
+/* Estilos para el contenido principal */
+.main-content {
+    flex-grow: 1; /* ✅ Permite que el contenido se expanda automáticamente */
+    padding: 40px;
+    margin-left: 250px; /* ✅ Respeta el sidebar */
+    transition: margin-left 0.5s ease;
+    background: #f3f3fc;
+    height: 100vh; /* ✅ Se asegura que ocupa toda la pantalla */
+    box-sizing: border-box; /* ✅ Evita que el padding altere el tamaño */
+    
+}
+
+/* Ajustes cuando la barra lateral está colapsada */
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+
+    width: 100vw; /* ✅ Se asegura de que todo ocupe el ancho completo */
+    overflow: hidden;
+    background: #f3f3fc;
   }
-  
-  .dashboard-container h1 {
-    color: #333;
-    font-size: 2rem;
-    margin-bottom: 10px;
-  }
-  
-  .dashboard-container p {
-    color: gray;
-    font-size: 1rem;
-  }
-  

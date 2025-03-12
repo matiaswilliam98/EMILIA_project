@@ -30,9 +30,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 export const logout = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = (req as any).user;
-    await logoutUser(user.id);
-    res.json({ success: true, message: "Sesión cerrada con éxito" });
+
+    if (!user) {
+      res.status(400).json({ success: false, message: "Usuario no autenticado." });
+      return;
+    }
+
+    const result = await logoutUser(user.id);
+    res.json(result);
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Error al cerrar sesión.", error: error.message });
   }
 };
