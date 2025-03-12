@@ -134,7 +134,7 @@ const LoginPopup = ({ onClose }) => {
                   required
                 />
               </div>
-               {/* 📌 Checkbox de Términos y Condiciones */}
+               {/* checkbox de Términos y Condiciones */}
                <div className="terms-container">
                     <input
                       type="checkbox"
@@ -179,7 +179,7 @@ const LoginPopup = ({ onClose }) => {
         </div>
       </div>
     </div>
-     {/* 📌 Modal de Términos y Condiciones */}
+     {/* Modal de Términos y Condiciones */}
      {termsModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
