@@ -1,44 +1,76 @@
+import PropTypes from 'prop-types';
+
 const MessageList = ({ messages }) => {
     return (
       <div style={styles.messages}>
         {messages.map((msg, index) => (
-          <div key={index} style={{ ...styles.message, justifyContent: msg.from === "bot" ? "flex-start" : "flex-end" }}>
-            {msg.from === "bot" && <img src="/emiliaPersonaje2.jpeg" alt="Bot" style={styles.avatar} />}
-            <div style={{ ...styles.messageText, background: msg.from === "bot" ? "#e0e0e0" : "#af7ac5", color: msg.from === "bot" ? "black" : "white" }}>
+          <div key={index} style={{ 
+            ...styles.message, 
+            justifyContent: msg.from === "bot" ? "flex-start" : "flex-end",
+            marginBottom: "15px" 
+          }}>
+            {msg.from === "bot" && <img src="/emiliaPersonaje2.jpeg" alt="EMILIA" style={styles.avatar} />}
+            <div style={{ 
+              ...styles.messageText, 
+              background: msg.from === "bot" ? "#e8f4f8" : "#af7ac5", 
+              color: msg.from === "bot" ? "#333333" : "white",
+              borderRadius: msg.from === "bot" ? "2px 18px 18px 18px" : "18px 2px 18px 18px",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.1)"
+            }}>
               {msg.text}
             </div>
+            {msg.from === "user" && <div style={styles.userAvatar}>Tú</div>}
           </div>
         ))}
       </div>
     );
   };
   
-  const styles = {
-    messages: {
-      display: "flex",
-      flexDirection: "column",
-      padding: "10px",
-    },
-    message: {
-      display: "flex",
-      alignItems: "center",
-      marginBottom: "10px",
-    },
-    avatar: {
-      width: "30px",
-      height: "30px",
-      borderRadius: "50%",
-      marginRight: "10px",
-    },
-    messageText: {
-        padding: "10px",
-        borderRadius: "10px",
-        maxWidth: "50%",  // 👈 Evita que los mensajes ocupen más del 50% del ancho del chat
-        wordWrap: "break-word", // 👈 Asegura que las palabras largas se dividan en varias líneas
-        overflowWrap: "break-word", // 👈 Evita que el texto salga del contenedor
-        whiteSpace: "pre-wrap", // 👈 Mantiene los espacios y saltos de línea
-    },
-  };
+MessageList.propTypes = {
+  messages: PropTypes.arrayOf(
+    PropTypes.shape({
+      from: PropTypes.oneOf(['bot', 'user']).isRequired,
+      text: PropTypes.string.isRequired
+    })
+  ).isRequired
+};
   
-  export default MessageList;
+const styles = {
+  messages: {
+    display: "flex",
+    flexDirection: "column",
+    padding: "10px",
+  },
+  message: {
+    display: "flex",
+    alignItems: "flex-start",
+    marginBottom: "15px",
+  },
+  avatar: {
+    width: "35px",
+    height: "35px",
+    borderRadius: "50%",
+    marginRight: "10px",
+    border: "2px solid #e0e0e0",
+  },
+  userAvatar: {
+    fontSize: "12px",
+    color: "#666",
+    marginLeft: "8px",
+    alignSelf: "center",
+    fontStyle: "italic",
+  },
+  messageText: {
+    padding: "12px 16px",
+    borderRadius: "18px",
+    maxWidth: "65%",
+    wordWrap: "break-word",
+    overflowWrap: "break-word",
+    whiteSpace: "pre-wrap",
+    lineHeight: "1.5",
+    fontSize: "15px",
+  },
+};
+  
+export default MessageList;
   
