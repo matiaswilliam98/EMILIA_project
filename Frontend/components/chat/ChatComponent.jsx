@@ -16,6 +16,8 @@ const ChatComponent = () => {
   const [configError, setConfigError] = useState(false);
   const [typingIndicator, setTypingIndicator] = useState(false);
   const messagesEndRef = useRef(null);
+  const [savedConversations, setSavedConversations] = useState([]);
+  const [showSavedConversations, setShowSavedConversations] = useState(false);
   
   // Referencia a la instancia de OpenAI para OpenRouter
   const openRouter = useRef(
@@ -44,6 +46,9 @@ const ChatComponent = () => {
       console.log(`🤖 Usando proveedor: ${config.AI.PROVIDER}`);
       console.log(`🧠 Usando modelo: ${config.AI.PROVIDER === 'openai' ? config.AI.MODEL : config.AI.OPENROUTER.MODEL}`);
     }
+    
+    // Cargar conversaciones guardadas
+    loadSavedConversations();
   }, []);
   
   // Initialize LangChain chat model (solo para OpenAI)
@@ -66,6 +71,121 @@ const ChatComponent = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typingIndicator]);
+  
+  // Cargar conversaciones guardadas desde localStorage
+  const loadSavedConversations = () => {
+    try {
+      const savedConvs = localStorage.getItem('emilia_saved_conversations');
+      if (savedConvs) {
+        setSavedConversations(JSON.parse(savedConvs));
+      }
+    } catch (error) {
+      console.error('Error al cargar conversaciones guardadas:', error);
+    }
+  };
+  
+  // Guardar la conversación actual
+  const saveCurrentConversation = () => {
+    try {
+      if (messages.length <= 1) {
+        // No guardar si solo está el mensaje de bienvenida
+        return;
+      }
+      
+      const date = new Date();
+      const conversationTitle = `Conversación ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+      
+      const newSavedConversation = {
+        id: Date.now(),
+        title: conversationTitle,
+        messages: [...messages],
+        date: date.toISOString()
+      };
+      
+      const updatedConversations = [...savedConversations, newSavedConversation];
+      
+      // Actualizar estado
+      setSavedConversations(updatedConversations);
+      
+      // Guardar en localStorage
+      localStorage.setItem('emilia_saved_conversations', JSON.stringify(updatedConversations));
+      
+      // Mostrar confirmación
+      alert('Conversación guardada correctamente');
+    } catch (error) {
+      console.error('Error al guardar la conversación:', error);
+      alert('Error al guardar la conversación');
+    }
+  };
+  
+  // Cargar una conversación guardada
+  const loadConversation = (conversationId) => {
+    try {
+      const conversation = savedConversations.find(conv => conv.id === conversationId);
+      if (conversation) {
+        // Cargar los mensajes
+        setMessages([...conversation.messages]);
+        
+        // Actualizar la memoria con el último par de mensajes
+        const lastUserMsg = conversation.messages.filter(msg => msg.from === 'user').pop();
+        const lastBotMsg = conversation.messages.filter(msg => msg.from === 'bot').pop();
+        
+        if (lastUserMsg && lastBotMsg) {
+          memory.current.saveContext(
+            { input: lastUserMsg.text },
+            { output: lastBotMsg.text }
+          );
+        }
+        
+        // Cerrar el selector de conversaciones
+        setShowSavedConversations(false);
+      }
+    } catch (error) {
+      console.error('Error al cargar la conversación:', error);
+      alert('Error al cargar la conversación');
+    }
+  };
+  
+  // Eliminar una conversación guardada
+  const deleteConversation = (conversationId, event) => {
+    event.stopPropagation();
+    try {
+      const updatedConversations = savedConversations.filter(conv => conv.id !== conversationId);
+      setSavedConversations(updatedConversations);
+      localStorage.setItem('emilia_saved_conversations', JSON.stringify(updatedConversations));
+    } catch (error) {
+      console.error('Error al eliminar la conversación:', error);
+      alert('Error al eliminar la conversación');
+    }
+  };
+  
+  // Iniciar una nueva conversación
+  const startNewConversation = () => {
+    try {
+      // Primero actualizar los mensajes
+      setMessages([
+        { from: "bot", text: "Hola, soy EMILIA. ¿Cómo te sientes hoy? Estoy aquí para escucharte y ayudarte." },
+      ]);
+      
+      // Luego recrear la memoria con un pequeño retraso para evitar problemas de renderizado
+      setTimeout(() => {
+        try {
+          memory.current = new BufferMemory({
+            returnMessages: true,
+            memoryKey: "chat_history",
+          });
+        } catch (error) {
+          console.error("Error al reiniciar la memoria:", error);
+        }
+      }, 100);
+      
+      // Ocultar el panel de conversaciones
+      setShowSavedConversations(false);
+    } catch (error) {
+      console.error("Error al iniciar nueva conversación:", error);
+      alert("Hubo un problema al iniciar una nueva conversación. Intenta recargar la página.");
+    }
+  };
   
   // Función para simular un efecto de "está escribiendo..."
   const showTypingIndicator = async () => {
@@ -262,8 +382,68 @@ const ChatComponent = () => {
               ? "⚠️ Error de configuración. Verifica el archivo .env" 
               : "Tu asistente terapéutico personal"}
           </p>
+          
+          {/* Botones de control de conversación */}
+          <div style={styles.conversationControls}>
+            <button 
+              onClick={() => setShowSavedConversations(!showSavedConversations)} 
+              style={styles.controlButton}
+              title="Ver conversaciones guardadas"
+            >
+              {showSavedConversations ? "Cerrar" : "Mis conversaciones"}
+            </button>
+            <button 
+              onClick={saveCurrentConversation} 
+              style={styles.controlButton}
+              title="Guardar esta conversación"
+              disabled={messages.length <= 1}
+            >
+              Guardar
+            </button>
+            <button 
+              onClick={startNewConversation} 
+              style={styles.controlButton}
+              title="Iniciar nueva conversación"
+            >
+              Nueva
+            </button>
+          </div>
         </div>
       </div>
+      
+      {/* Panel de conversaciones guardadas */}
+      {showSavedConversations && (
+        <div style={styles.savedConversationsPanel}>
+          <h3 style={styles.savedConversationsTitle}>Conversaciones guardadas</h3>
+          {savedConversations.length === 0 ? (
+            <p style={styles.noConversations}>No tienes conversaciones guardadas.</p>
+          ) : (
+            <div style={styles.conversationsList}>
+              {savedConversations.map(conv => (
+                <div 
+                  key={conv.id} 
+                  style={styles.conversationItem}
+                  onClick={() => loadConversation(conv.id)}
+                >
+                  <div style={styles.conversationInfo}>
+                    <span style={styles.conversationTitle}>{conv.title}</span>
+                    <span style={styles.conversationDate}>
+                      {new Date(conv.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <button 
+                    style={styles.deleteButton}
+                    onClick={(e) => deleteConversation(conv.id, e)}
+                    title="Eliminar conversación"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ÁREA DE MENSAJES */}
       <div style={styles.messageList}>
@@ -369,6 +549,97 @@ const styles = {
     fontSize: "0.95rem",
     fontWeight: "normal",
   },
+  conversationControls: {
+    display: "flex",
+    gap: "10px",
+    marginTop: "12px",
+  },
+  controlButton: {
+    padding: "6px 12px",
+    borderRadius: "20px",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    background: "rgba(255, 255, 255, 0.2)",
+    color: "white",
+    fontSize: "0.85rem",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    outline: "none",
+    "&:hover": {
+      background: "rgba(255, 255, 255, 0.3)",
+    },
+    "&:disabled": {
+      opacity: 0.5,
+      cursor: "not-allowed",
+    }
+  },
+  savedConversationsPanel: {
+    background: "#fff",
+    padding: "12px",
+    borderBottom: "1px solid #e0e0e0",
+    maxHeight: "200px",
+    overflowY: "auto",
+  },
+  savedConversationsTitle: {
+    fontSize: "1rem",
+    fontWeight: "500",
+    color: "#333",
+    margin: "0 0 10px 0",
+  },
+  noConversations: {
+    fontSize: "0.9rem",
+    color: "#666",
+    fontStyle: "italic",
+    textAlign: "center",
+  },
+  conversationsList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+  conversationItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "8px 12px",
+    borderRadius: "8px",
+    background: "#f1f1f1",
+    cursor: "pointer",
+    transition: "background 0.2s ease",
+    "&:hover": {
+      background: "#e0e0e0",
+    },
+  },
+  conversationInfo: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  conversationTitle: {
+    fontSize: "0.9rem",
+    fontWeight: "500",
+    color: "#333",
+  },
+  conversationDate: {
+    fontSize: "0.75rem",
+    color: "#666",
+  },
+  deleteButton: {
+    width: "24px",
+    height: "24px",
+    borderRadius: "50%",
+    border: "none",
+    background: "rgba(0,0,0,0.1)",
+    color: "#666",
+    fontSize: "1rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      background: "rgba(0,0,0,0.2)",
+      color: "#333",
+    },
+  },
   messageList: {
     flex: 1,
     overflowY: "auto",
@@ -440,6 +711,9 @@ const styles = {
     },
     headerText: {
       fontSize: "1.4rem",
+    },
+    savedConversationsPanel: {
+      maxHeight: "150px",
     },
   },
   "@media (max-width: 1024px)": {
