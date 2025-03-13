@@ -3,28 +3,68 @@ import PropTypes from 'prop-types';
 const MessageList = ({ messages }) => {
     return (
       <div style={styles.messages}>
-        {messages.map((msg, index) => (
-          <div key={index} style={{ 
-            ...styles.message, 
-            justifyContent: msg.from === "bot" ? "flex-start" : "flex-end",
-            marginBottom: "15px" 
-          }}>
-            {msg.from === "bot" && <img src="/emiliaPersonaje2.jpeg" alt="EMILIA" style={styles.avatar} />}
-            <div style={{ 
-              ...styles.messageText, 
-              background: msg.from === "bot" ? "#e8f4f8" : "#af7ac5", 
-              color: msg.from === "bot" ? "#333333" : "white",
-              borderRadius: msg.from === "bot" ? "2px 18px 18px 18px" : "18px 2px 18px 18px",
-              boxShadow: "0 1px 2px rgba(0,0,0,0.1)"
-            }}>
-              {msg.text}
+        {messages.map((msg, index) => {
+          // Determinar si este mensaje es parte de una secuencia del mismo remitente
+          const isFirstInSequence = index === 0 || messages[index - 1].from !== msg.from;
+          const isLastInSequence = index === messages.length - 1 || messages[index + 1].from !== msg.from;
+          
+          return (
+            <div 
+              key={index} 
+              style={{ 
+                ...styles.message, 
+                justifyContent: msg.from === "bot" ? "flex-start" : "flex-end",
+                marginBottom: isLastInSequence ? "15px" : "4px"
+              }}
+            >
+              {/* Solo mostrar avatar en el primer mensaje de una secuencia */}
+              {msg.from === "bot" && isFirstInSequence && 
+                <img src="/emiliaPersonaje2.jpeg" alt="EMILIA" style={styles.avatar} />
+              }
+              {/* Espacio reservado para mantener alineación cuando no hay avatar */}
+              {msg.from === "bot" && !isFirstInSequence && 
+                <div style={styles.avatarPlaceholder}></div>
+              }
+              
+              <div style={{ 
+                ...styles.messageText, 
+                background: msg.from === "bot" ? "#e8f4f8" : "#af7ac5", 
+                color: msg.from === "bot" ? "#333333" : "white",
+                borderRadius: getBorderRadius(msg.from, isFirstInSequence, isLastInSequence),
+                boxShadow: "0 1px 2px rgba(0,0,0,0.1)"
+              }}>
+                {msg.text}
+              </div>
+              
+              {/* Solo mostrar etiqueta de usuario en el primer mensaje de una secuencia */}
+              {msg.from === "user" && isFirstInSequence && 
+                <div style={styles.userAvatar}>Tú</div>
+              }
+              {/* Espacio reservado para mantener alineación cuando no hay etiqueta */}
+              {msg.from === "user" && !isFirstInSequence && 
+                <div style={styles.userAvatarPlaceholder}></div>
+              }
             </div>
-            {msg.from === "user" && <div style={styles.userAvatar}>Tú</div>}
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
+  
+// Función para determinar el radio de borde según la posición en la secuencia
+const getBorderRadius = (from, isFirst, isLast) => {
+  if (from === "bot") {
+    if (isFirst && isLast) return "2px 18px 18px 18px"; // Único mensaje
+    if (isFirst) return "2px 18px 18px 2px"; // Primer mensaje
+    if (isLast) return "18px 18px 18px 2px"; // Último mensaje
+    return "18px 18px 18px 2px"; // Mensaje intermedio
+  } else { // usuario
+    if (isFirst && isLast) return "18px 2px 18px 18px"; // Único mensaje
+    if (isFirst) return "18px 2px 2px 18px"; // Primer mensaje
+    if (isLast) return "18px 2px 18px 18px"; // Último mensaje
+    return "18px 2px 2px 18px"; // Mensaje intermedio
+  }
+};
   
 MessageList.propTypes = {
   messages: PropTypes.arrayOf(
@@ -44,7 +84,6 @@ const styles = {
   message: {
     display: "flex",
     alignItems: "flex-start",
-    marginBottom: "15px",
   },
   avatar: {
     width: "35px",
@@ -53,6 +92,10 @@ const styles = {
     marginRight: "10px",
     border: "2px solid #e0e0e0",
   },
+  avatarPlaceholder: {
+    width: "35px",
+    marginRight: "10px",
+  },
   userAvatar: {
     fontSize: "12px",
     color: "#666",
@@ -60,9 +103,12 @@ const styles = {
     alignSelf: "center",
     fontStyle: "italic",
   },
+  userAvatarPlaceholder: {
+    width: "20px",
+    marginLeft: "8px",
+  },
   messageText: {
     padding: "12px 16px",
-    borderRadius: "18px",
     maxWidth: "65%",
     wordWrap: "break-word",
     overflowWrap: "break-word",

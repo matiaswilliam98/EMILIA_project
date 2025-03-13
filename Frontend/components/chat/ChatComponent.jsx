@@ -65,6 +65,47 @@ const ChatComponent = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  
+  // Función para procesar y añadir respuestas múltiples con retraso
+  const addBotMessagesWithDelay = async (responseText, userMessage) => {
+    // Dividir la respuesta por el separador "---"
+    const messageSegments = responseText.split(/\s*---\s*/);
+    
+    // Añadir cada segmento como un mensaje separado con retraso
+    for (let i = 0; i < messageSegments.length; i++) {
+      const segment = messageSegments[i].trim();
+      if (segment) {
+        // Si no es el primer mensaje, añadir un retraso adaptativo
+        if (i > 0) {
+          // Calcular retraso basado en la longitud del mensaje anterior
+          // Mensajes cortos = retraso corto, mensajes largos = retraso más largo
+          const prevSegmentLength = messageSegments[i-1].length;
+          // Retraso mínimo de 800ms, máximo de 2000ms
+          const delay = Math.min(Math.max(800, prevSegmentLength * 3), 2000);
+          
+          // Para desarrollo, podemos usar un retraso más corto para pruebas
+          const finalDelay = config.APP.DEBUG_MODE ? Math.min(delay, 1000) : delay;
+          
+          await new Promise(resolve => setTimeout(resolve, finalDelay));
+        }
+        
+        setMessages(prev => [...prev, { from: "bot", text: segment }]);
+        
+        // Actualizar el contexto de memoria solo con el último mensaje para evitar duplicación
+        if (i === messageSegments.length - 1) {
+          await memory.current.saveContext(
+            { input: userMessage },
+            { output: responseText } // Guardar respuesta completa en la memoria
+          );
+        }
+        
+        // Scroll al fondo después de añadir cada mensaje
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+  };
 
   const handleSendMessage = async (message) => {
     if (!message.trim()) return;
@@ -122,14 +163,21 @@ const ChatComponent = () => {
         throw new Error(`Proveedor desconocido: ${config.AI.PROVIDER}`);
       }
       
-      // Add bot response to the state
-      setMessages((prev) => [...prev, { from: "bot", text: botResponseText }]);
+      // Verificar si la respuesta contiene el separador "---"
+      if (botResponseText.includes('---')) {
+        // Procesar múltiples mensajes
+        await addBotMessagesWithDelay(botResponseText, message);
+      } else {
+        // Añadir un solo mensaje como antes
+        setMessages((prev) => [...prev, { from: "bot", text: botResponseText }]);
+        
+        // Actualizar la memoria
+        await memory.current.saveContext(
+          { input: message },
+          { output: botResponseText }
+        );
+      }
       
-      // Update memory with the new messages
-      await memory.current.saveContext(
-        { input: message },
-        { output: botResponseText }
-      );
     } catch (error) {
       console.error("Error getting response from AI:", error);
       let errorMessage = "Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.";
@@ -161,11 +209,21 @@ const ChatComponent = () => {
   
   // Helper function to format messages for OpenRouter
   const formatMessagesForOpenRouter = () => {
+    // Para la historia de la conversación, tratamos todos los mensajes como entidades independientes
     // No incluimos el mensaje del sistema aquí, lo añadiremos por separado
-    return messages.map(msg => ({
-      role: msg.from === "user" ? "user" : "assistant",
-      content: msg.text
-    }));
+    
+    // Crearemos un nuevo array con los mensajes formateados
+    const formattedMessages = [];
+    
+    // Recorremos todos los mensajes en la conversación
+    messages.forEach(msg => {
+      formattedMessages.push({
+        role: msg.from === "user" ? "user" : "assistant",
+        content: msg.text
+      });
+    });
+    
+    return formattedMessages;
   };
 
   return (
