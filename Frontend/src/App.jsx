@@ -3,6 +3,8 @@ import "./App.css";
 import LoginPopup from "../components/LoginPopup/LoginPopup";
 import Dashboard from "../pages/Dashboard";
 import ProtectedRoute from "../components/ProtectedRoute";
+import Survey from "../pages/Survey";
+import EmotionCalendar from "../pages/EmotionCalendar";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/survey" element={<Survey />} />
+        <Route path="/calendar" element={<EmotionCalendar />} />
       </Routes>
     </Router>
   );
