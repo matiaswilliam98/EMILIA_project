@@ -19,7 +19,7 @@ const LoginPopup = ({ onClose }) => {
   const [message, setMessage] = useState("");
 
   // URL del backend usando proxy configurado en vite.config.js
-  const backendUrl = "/api/auth";
+  const backendUrl = "https://emiliaproject-production.up.railway.app/api/auth";
 
   // Manejo de inputs
   const handleInputChange = (e) => {
