@@ -25,7 +25,7 @@ const Sidebar = () => {
   
       console.log("📡 Enviando solicitud de logout al backend...");
   
-      const response = await fetch("/api/auth/logout", {
+      const response = await fetch("https://emiliaproject-production.up.railway.app/api/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
