@@ -14,6 +14,7 @@ const ChatComponent = () => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [configError, setConfigError] = useState(false);
+  const [typingIndicator, setTypingIndicator] = useState(false);
   const messagesEndRef = useRef(null);
   
   // Referencia a la instancia de OpenAI para OpenRouter
@@ -64,7 +65,17 @@ const ChatComponent = () => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, typingIndicator]);
+  
+  // Función para simular un efecto de "está escribiendo..."
+  const showTypingIndicator = async () => {
+    setTypingIndicator(true);
+    await new Promise(resolve => setTimeout(resolve, 700)); // Suficiente tiempo para que se vea la animación
+  };
+  
+  const hideTypingIndicator = () => {
+    setTypingIndicator(false);
+  };
   
   // Función para procesar y añadir respuestas múltiples con retraso
   const addBotMessagesWithDelay = async (responseText, userMessage) => {
@@ -86,7 +97,10 @@ const ChatComponent = () => {
           // Para desarrollo, podemos usar un retraso más corto para pruebas
           const finalDelay = config.APP.DEBUG_MODE ? Math.min(delay, 1000) : delay;
           
+          // Mostrar indicador de escritura
+          await showTypingIndicator();
           await new Promise(resolve => setTimeout(resolve, finalDelay));
+          hideTypingIndicator();
         }
         
         setMessages(prev => [...prev, { from: "bot", text: segment }]);
@@ -113,6 +127,9 @@ const ChatComponent = () => {
     // Add user message to the state
     setMessages((prev) => [...prev, { from: "user", text: message }]);
     setIsLoading(true);
+    
+    // Muestra el indicador de escritura
+    await showTypingIndicator();
 
     try {
       if (configError) {
@@ -163,6 +180,9 @@ const ChatComponent = () => {
         throw new Error(`Proveedor desconocido: ${config.AI.PROVIDER}`);
       }
       
+      // Oculta el indicador de escritura
+      hideTypingIndicator();
+      
       // Verificar si la respuesta contiene el separador "---"
       if (botResponseText.includes('---')) {
         // Procesar múltiples mensajes
@@ -180,6 +200,8 @@ const ChatComponent = () => {
       
     } catch (error) {
       console.error("Error getting response from AI:", error);
+      hideTypingIndicator();
+      
       let errorMessage = "Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.";
       
       if (configError || error.message.includes('API key')) {
@@ -230,19 +252,39 @@ const ChatComponent = () => {
     <div style={styles.chatContainer}>
       {/* ENCABEZADO DEL CHAT */}
       <div style={styles.header}>
-        <h2 style={styles.headerText}>EMILIA - Asistente Terapéutico</h2>
-        <p style={styles.headerSubtext}>
-          {configError 
-            ? "⚠️ Error de configuración. Verifica el archivo .env" 
-            : "Un espacio seguro para expresarte y recibir apoyo"}
-        </p>
+        <div style={styles.headerContent}>
+          <div style={styles.headerLogo}>
+            <img src="/emiliaPersonaje2.jpeg" alt="EMILIA Logo" style={styles.logoImage} />
+            <h2 style={styles.headerText}>EMILIA</h2>
+          </div>
+          <p style={styles.headerSubtext}>
+            {configError 
+              ? "⚠️ Error de configuración. Verifica el archivo .env" 
+              : "Tu asistente terapéutico personal"}
+          </p>
+        </div>
       </div>
 
       {/* ÁREA DE MENSAJES */}
       <div style={styles.messageList}>
         <MessageList messages={messages} />
+        
+        {/* Indicador de escritura */}
+        {typingIndicator && (
+          <div style={styles.typingIndicatorContainer}>
+            <div style={styles.typingAvatar}>
+              <img src="/emiliaPersonaje2.jpeg" alt="EMILIA" style={styles.typingAvatarImg} />
+            </div>
+            <div style={styles.typingBubble}>
+              <div style={styles.typingDot}></div>
+              <div style={styles.typingDot}></div>
+              <div style={styles.typingDot}></div>
+            </div>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
-        {isLoading && <div style={styles.loadingIndicator}>EMILIA está reflexionando...</div>}
+        {isLoading && !typingIndicator && <div style={styles.loadingIndicator}>EMILIA está reflexionando...</div>}
       </div>
 
       {/* CAJA DE MENSAJE */}
@@ -258,62 +300,146 @@ const ChatComponent = () => {
   );
 };
 
+// Crear estilos de animación al montar componente
+if (typeof document !== 'undefined') {
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+    }
+  `;
+  document.head.appendChild(styleEl);
+}
+
 const styles = {
   chatContainer: {
     display: "flex",
     flexDirection: "column",
     height: "90vh", 
     width: "calc(100% - 20px)",
-    borderRadius: "12px",
+    borderRadius: "16px",
     background: "#f8f9fa",
     overflow: "hidden", 
     margin: "auto", 
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+    border: "1px solid rgba(0,0,0,0.05)",
   },
   header: {
     background: "linear-gradient(135deg, #7e57c2 0%, #9b59b6 100%)",
     color: "white",
-    padding: "15px 20px",
-    textAlign: "center",
+    padding: "16px 24px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+    position: "relative",
+    zIndex: 1,
+  },
+  headerContent: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  headerLogo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  },
+  logoImage: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    border: "2px solid white",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
   },
   headerText: {
     margin: 0,
     color: "white",
-    fontSize: "1.5rem",
+    fontSize: "1.6rem",
     fontWeight: "600",
+    letterSpacing: "0.5px",
   },
   headerSubtext: {
     margin: "5px 0 0 0",
     color: "rgba(255, 255, 255, 0.9)",
-    fontSize: "0.9rem",
+    fontSize: "0.95rem",
     fontWeight: "normal",
-  },
-  modelInfo: {
-    color: "rgba(255, 255, 255, 0.7)",
-    fontSize: "0.8rem",
-    display: "block",
-    marginTop: "4px",
   },
   messageList: {
     flex: 1,
     overflowY: "auto",
     overflowX: "hidden",
-    padding: "15px",
-    maxHeight: "calc(100vh - 180px)",
+    padding: "16px",
+    maxHeight: "calc(100vh - 190px)",
     backgroundColor: "#f8f9fa",
+    backgroundImage: "radial-gradient(circle at center, rgba(155, 89, 182, 0.03) 0%, rgba(229, 229, 229, 0.01) 70%)",
   },
   loadingIndicator: {
-    padding: "10px",
+    padding: "16px",
     textAlign: "center",
     fontStyle: "italic",
     color: "#666",
     fontSize: "0.9rem",
+    opacity: 0.8,
+    animation: "pulse 2s infinite ease-in-out",
+  },
+  typingIndicatorContainer: {
+    display: "flex",
+    alignItems: "flex-start",
+    margin: "8px 0",
+    paddingLeft: "8px",
+  },
+  typingAvatar: {
+    width: "36px",
+    height: "36px",
+    marginRight: "8px",
+    borderRadius: "50%",
+    overflow: "hidden",
+    border: "1px solid #e0e0e0",
+    backgroundColor: "white",
+  },
+  typingAvatarImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  typingBubble: {
+    display: "flex",
+    alignItems: "center",
+    background: "#e8f4f8",
+    padding: "12px 16px",
+    borderRadius: "18px 18px 18px 4px",
+    maxWidth: "60px",
+    height: "24px",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+  },
+  typingDot: {
+    width: "8px",
+    height: "8px",
+    backgroundColor: "#666",
+    borderRadius: "50%",
+    margin: "0 2px",
+    opacity: 0.6,
+    animation: "bounce 1.4s infinite ease-in-out both",
+    animationDelay: "calc(var(--i) * 0.2s)",
   },
   "@media (max-width: 768px)": {
     chatContainer: {
       width: "100%", 
       height: "100vh", 
       borderRadius: "0",
+      margin: 0,
+      border: "none",
+    },
+    header: {
+      padding: "12px",
+    },
+    headerText: {
+      fontSize: "1.4rem",
     },
   },
   "@media (max-width: 1024px)": {
@@ -322,5 +448,14 @@ const styles = {
     },
   },
 };
+
+// Añadir animación a los puntos del indicador de escritura
+for (let i = 0; i < 3; i++) {
+  if (styles.typingDot) {
+    styles.typingDot[`&:nth-child(${i+1})`] = {
+      animationDelay: `${i * 0.2}s`
+    };
+  }
+}
 
 export default ChatComponent;
