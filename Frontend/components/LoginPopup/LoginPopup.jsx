@@ -18,8 +18,8 @@ const LoginPopup = ({ onClose }) => {
   const [termsModalOpen, setTermsModalOpen] = useState(false); // Estado del modal
   const [message, setMessage] = useState("");
 
-  // URL del backend corregida
-  const backendUrl = "http://localhost:5000/api/auth"; 
+  // URL del backend usando proxy configurado en vite.config.js
+  const backendUrl = "/api/auth";
 
   // Manejo de inputs
   const handleInputChange = (e) => {
@@ -79,8 +79,17 @@ const LoginPopup = ({ onClose }) => {
         }
       }
     } catch (error) {
-      console.error("❌ Error en la solicitud:", error.response?.status, error.response?.data);
-      setMessage(error.response?.data?.message || "Error en la solicitud.");
+      console.error("❌ Error en la solicitud:", error);
+      
+      // Mejor manejo de errores para identificar problemas específicos
+      if (error.name === 'NetworkError' || !error.response) {
+        setMessage("Error de conexión: No se pudo conectar con el servidor. Verifica que el backend esté en ejecución.");
+      } else if (error.response) {
+        // El servidor respondió con un código de estado fuera del rango 2xx
+        setMessage(error.response.data?.message || `Error ${error.response.status}: ${error.response.statusText}`);
+      } else {
+        setMessage("Error en la solicitud. Intente nuevamente.");
+      }
     }
     ///
   };

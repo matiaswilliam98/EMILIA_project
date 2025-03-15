@@ -1,0 +1,104 @@
+/* Estilos generales */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f5f3ff;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Contenedor principal */
+.survey-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Caja de preguntas */
+.question-box {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 450px;
+  text-align: center;
+}
+
+/* Pregunta */
+.question-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: #5a189a;
+  margin-bottom: 15px;
+}
+
+/* Campo de texto y select */
+.input-field {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: 2px solid #9d4edd;
+  border-radius: 12px;
+  outline: none;
+  font-size: 16px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.input-field:focus {
+  border-color: #7b2cbf;
+  box-shadow: 0px 0px 8px rgba(123, 44, 191, 0.5);
+}
+
+/* Botones de opciones */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.option-button {
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #9d4edd;
+  border-radius: 12px;
+  background: white;
+  color: #5a189a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.option-button:hover {
+  background: #e0aaff;
+}
+
+.option-button.selected {
+  background: #7b2cbf;
+  color: white;
+  border-color: #5a189a;
+}
+
+/* Botón siguiente */
+.next-button {
+  margin-top: 20px;
+  padding: 12px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 15px;
+  background-color: #7b2cbf;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  width: 100%;
+}
+
+.next-button:hover {
+  background-color: #5a189a;
+}
