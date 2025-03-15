@@ -80,35 +80,29 @@ const Sidebar = () => {
             {!isCollapsed && <span>Calendar</span>}
           </NavLink>
         </li>
-        <li className={`dropdown ${activeDropdown === 0 ? 'active' : ''}`}>
-          <div className="nav-item dropdown-toggle" onClick={() => toggleDropdown(0)}>
-            <div>
-              <span className="nav-icon"><i className="fas fa-video"></i></span>
-              {!isCollapsed && <span>Video</span>}
-            </div>
-            {!isCollapsed && (
-              <i className={`fas ${activeDropdown === 0 ? 'fa-chevron-down' : 'fa-chevron-right'} dropdown-icon`}></i>
-            )}
-          </div>
-          {!isCollapsed && (
-            <ul className="dropdown-menu">
-              <li><NavLink to="/video/general" className="dropdown-item">General</NavLink></li>
-              <li><NavLink to="/video/privacy" className="dropdown-item">Privacy</NavLink></li>
-              <li><NavLink to="/video/notifications" className="dropdown-item">Notifications</NavLink></li>
-            </ul>
-          )}
+        <li>
+          <NavLink to="/dashboard/video" className="nav-item">
+            <span className="nav-icon"><i className="fas fa-video"></i></span>
+            {!isCollapsed && <span>Video</span>}
+          </NavLink>
         </li>
         <li>
-          <a href="#" className="nav-item">
+          <NavLink to="/dashboard/todo"className="nav-item">
             <span className="nav-icon"><i className="fa-solid fa-list-check"></i></span>
             {!isCollapsed && <span>To-Do List</span>}
-          </a>
+            </NavLink>
+        </li>
+        <li>
+          <NavLink to="/dashboard/opinion" className="nav-item">
+            <span className="nav-icon"><i className="fas fa-clipboard-list"></i></span>
+            {!isCollapsed && <span>Opinion</span>}
+          </NavLink>
         </li>
       </ul>
       <li className="logout">
   <a href="#" className="nav-item" onClick={(e) => {
     e.preventDefault();
-    console.log("🔘 Logout clickeado"); // ✅ Verificación
+    console.log("Logout clickeado"); // ✅ Verificación
     handleLogout();
   }}>
     <span className="nav-icon"><i className="fas fa-sign-out-alt"></i></span>

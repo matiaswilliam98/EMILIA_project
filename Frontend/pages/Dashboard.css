@@ -1,7 +1,7 @@
 /* Estilos para el contenedor principal del dashboard */
 .dashboard-container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
     background: #f3f3fc(0, 12%, 95%);
     font-family: 'Poppins', sans-serif;
@@ -11,20 +11,20 @@
 /* Estilos para el contenido principal */
 .main-content {
     flex-grow: 1; /* ✅ Permite que el contenido se expanda automáticamente */
-    padding: 40px;
-    margin-left: 250px; /* ✅ Respeta el sidebar */
+    padding: 1px ;
+    margin-left: 225px; /* ✅ Respeta el sidebar */
     transition: margin-left 0.5s ease;
     background: #f3f3fc;
     height: 100vh; /* ✅ Se asegura que ocupa toda la pantalla */
     box-sizing: border-box; /* ✅ Evita que el padding altere el tamaño */
-    
+
 }
 
-/* Ajustes cuando la barra lateral está colapsada */
 .sidebar.collapsed ~ .main-content {
-    margin-left: 80px;
-    width: calc(100% - 80px);
+    margin-left: 69px; /* ✅ Mantiene un espacio mínimo para respetar el sidebar */
+    width: calc(100% - 69px); /* ✅ Ajusta el contenido sin meterlo dentro del sidebar */
 }
+
 html, body {
     margin: 0;
     padding: 0;
@@ -34,3 +34,4 @@ html, body {
     overflow: hidden;
     background: #f3f3fc;
   }
+  
