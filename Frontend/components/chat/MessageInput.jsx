@@ -38,7 +38,7 @@ const MessageInput = ({
         </button>
       </div>
       <div style={styles.disclaimer}>
-        EMILIA es un asistente terapéutico de IA y no reemplaza la atención de un profesional de salud mental.
+        EMILIA es un asistente de apoyo emocional con IA y no reemplaza la atención de un profesional de salud mental.
       </div>
     </div>
   );

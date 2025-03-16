@@ -10,10 +10,14 @@ export default function FeedbackForm() {
     recommendation: "0",
   });
 
+  const [selectedExperience, setSelectedExperience] = useState("");
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  const handleExperienceSelect = (label) => {
+    setFormData({ ...formData, experience: label });
+    setSelectedExperience(label); // Actualiza la selección visual
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -38,7 +42,8 @@ export default function FeedbackForm() {
         improvements: "",
         recommendation: "",
       });
-
+// Resetear la selección de experiencia
+setSelectedExperience("");
       // Asegurar que los radio buttons se desmarquen
       document.querySelectorAll("input[type=radio]").forEach(input => input.checked = false);
 
@@ -57,16 +62,52 @@ export default function FeedbackForm() {
         {/* Experiencia */}
         <div className="form-group">
           <label>¿Cómo calificarías tu experiencia usando Emilia?</label>
-          <div className="radio-group">
-            {["Muy Mal", "Mal", "Neutral", "Bien", "Muy Bien"].map((option) => (
-              <label key={option} className="radio-option">
-                <input
-                  type="radio"
-                  name="experience"
-                  value={option}
-                  onChange={handleChange}
+          <div 
+            className="radio-group" 
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "20px",
+              marginTop: "10px"
+            }}
+          >
+            {[
+              { label: "Muy Mal", img: "/muyMal.svg" },
+              { label: "Mal", img: "/mal.svg" },
+              { label: "Neutral", img: "/neutral.svg" },
+              { label: "Bien", img: "/bien.svg" },
+              { label: "Muy Bien", img: "/muyBien.svg" }
+            ].map(({ label, img }) => (
+              <label 
+                key={label} 
+                className="radio-option"
+                onClick={() => handleExperienceSelect(label)} 
+                tabIndex="0"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  cursor: "pointer",
+                  gap: "5px",
+                }}
+              >
+                <img
+                  src={img}
+                  alt={label}
+                  className="radio-image"
+                  aria-label={label}
+                  style={{
+                    width: "50px",
+                    height: "50px",
+                    objectFit: "contain",
+                    cursor: "pointer",
+                    borderRadius: "50%",
+                    border: selectedExperience === label ? "3px solid #6a0dad" : "3px solid transparent",
+                    transform: selectedExperience === label ? "scale(1.1)" : "scale(1)",
+                    transition: "all 0.3s ease-in-out",
+                  }}
                 />
-                {option}
+                {label}
               </label>
             ))}
           </div>

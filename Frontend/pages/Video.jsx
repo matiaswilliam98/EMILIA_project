@@ -83,7 +83,7 @@ const Navbar = ({ setSearchTerm }) => {
           sx={{
             background: "white",
             borderRadius: "10px",
-            width: "250px",
+            width: { xs: "90px", sm: "200px", md: "250px" },
             input: { color: "black", padding: "8px" }
           }}
         />
@@ -103,7 +103,7 @@ const VideoCard = ({ video }) => {
     <>
       <Card
         sx={{
-          width: "320px",
+          width: { xs: "90%", sm: "95%", md: "320px"},
           backgroundColor: "#1E1E1E",
           cursor: "pointer",
           padding: "5px",
@@ -128,7 +128,12 @@ const VideoCard = ({ video }) => {
           />
         </Box>
         <CardContent sx={{ textAlign: "center", padding: "10px", width: "100%" }}>
-          <Typography variant="body1" sx={{ color: "white", fontWeight: "bold", fontSize: "14px" }}>
+          <Typography variant="body1" sx={{ color: "white", fontWeight: "bold", fontSize: "14px",
+              width: "100%",
+              textOverflow: "ellipsis",
+              wordWrap: "break-word",
+              whiteSpace: "normal",
+              overflow: "hidden"}}>
             {video.title}
           </Typography>
           <Typography variant="body2" sx={{ color: "gray", fontSize: "12px" }}>
@@ -138,7 +143,8 @@ const VideoCard = ({ video }) => {
       </Card>
 
       {/* 📌 Modal para Reproducir Video */}
-      <Modal open={open} onClose={() => setOpen(false)} sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Modal open={open} onClose={() => setOpen(false)} sx={{ display: "flex", 
+        alignItems: "center", justifyContent: "center" }}>
         <Box
           sx={{
             width: "90%",
@@ -190,7 +196,13 @@ const VideoList = ({ searchTerm }) => {
       {filteredVideos.length > 0 ? (
         filteredVideos.map(([category, videos]) => (
           <Box key={category} p={2}>
-            <Typography variant="h5" sx={{ color: "white", fontWeight: "bold", textAlign: "center", mb: 2 }}>
+            <Typography variant="h5" sx={{ color: "white",
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                textAlign: "center",
+                textShadow: "2px 2px 5px rgba(0,0,0,0.5)",
+                mb: 2,
+                fontSize: { xs: "15px", sm: "20px", md: "24px", lg: "28px" } }}>
               {category}
             </Typography>
             <Swiper spaceBetween={10} slidesPerView={1} breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }}>
@@ -218,7 +230,7 @@ const Video = () => {
       sx={{
         background: "linear-gradient(135deg, rgb(61, 53, 69), rgb(174, 162, 217), rgb(126, 179, 184))",
         height: "100vh", overflowX: "hidden", overflowY: "auto",
-    padding: "1px", width: "97%", 
+    padding: "1px", width: "100%", 
       }}
     >
       <Navbar setSearchTerm={setSearchTerm} />

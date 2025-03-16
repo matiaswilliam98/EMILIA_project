@@ -2,27 +2,26 @@
 .dashboard-container {
     display: flex;
     min-height: 100vh;
-    width: 100vw;
-    background: #f3f3fc(0, 12%, 95%);
+    width: 100%;; /* ✅ Evita problemas con el scrollbar */
+    background: #f3f3fc;
     font-family: 'Poppins', sans-serif;
     overflow: hidden;
 }
 
 /* Estilos para el contenido principal */
 .main-content {
-    flex-grow: 1; /* ✅ Permite que el contenido se expanda automáticamente */
-    padding: 1px ;
-    margin-left: 225px; /* ✅ Respeta el sidebar */
-    transition: margin-left 0.5s ease;
+    flex-grow: 1; /* ✅ Se expandirá automáticamente */
     background: #f3f3fc;
-    height: 100vh; /* ✅ Se asegura que ocupa toda la pantalla */
-    box-sizing: border-box; /* ✅ Evita que el padding altere el tamaño */
-
+    height: 100vh;
+    margin-left: 250px; /* ✅ Respeta el sidebar */
+    transition: margin-left 0.5s ease;
+    box-sizing: border-box;
+    transition: margin-left 0.5s ease;
 }
 
 .sidebar.collapsed ~ .main-content {
-    margin-left: 69px; /* ✅ Mantiene un espacio mínimo para respetar el sidebar */
-    width: calc(100% - 69px); /* ✅ Ajusta el contenido sin meterlo dentro del sidebar */
+    margin-left: 80px; /* ✅ Mantiene un espacio mínimo para respetar el sidebar */
+    width: calc(100% - 80px); /* ✅ Ajusta el contenido sin meterlo dentro del sidebar */
 }
 
 html, body {
@@ -34,4 +33,3 @@ html, body {
     overflow: hidden;
     background: #f3f3fc;
   }
-  

@@ -502,7 +502,7 @@ const styles = {
   chatContainer: {
     display: "flex",
     flexDirection: "column",
-    height: "90vh", 
+    height: "100vh", 
     width: "calc(100% - 20px)",
     borderRadius: "16px",
     background: "#f8f9fa",

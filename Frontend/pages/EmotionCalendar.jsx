@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom"; // Importa useNavigate
 import "./EmotionCalendar.css"; // Importamos el CSS separado
+import { ArrowLeft } from "lucide-react";
+
 
 const emotions = [
   { name: "Feliz", color: "happy" },
@@ -79,6 +82,7 @@ function Dashboard({ entries }) {
 }
 
 export default function EmotionCalendar() {
+  const navigate = useNavigate();
   const [entries, setEntries] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
   const [emotion, setEmotion] = useState("");
@@ -104,6 +108,10 @@ export default function EmotionCalendar() {
 
   return (
     <div className="container">
+      <button onClick={() => navigate(-1)} className="back-button">
+      <ArrowLeft size={28} strokeWidth={2.5}/> 
+    </button>
+
       <h1>Calendario de Emociones</h1>
       <Calendar entries={entries} onDayClick={handleDayClick} />
       {selectedDay !== null && (

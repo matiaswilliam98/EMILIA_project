@@ -101,7 +101,7 @@ const LoginPopup = ({ onClose }) => {
       {message && <div className="message">{message}</div>}
         {/* Lado izquierdo con imagen */}
         <div className="left-panel">
-          <img src="personaje.png" alt="Descripción" className="login-image" />
+          <img src="emiliaPersonaje2.png" alt="Descripción" className="login-image" />
         </div>
 
         {/* Lado derecho (formulario) */}
