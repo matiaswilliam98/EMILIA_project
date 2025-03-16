@@ -218,7 +218,7 @@ const Video = () => {
       sx={{
         background: "linear-gradient(135deg, rgb(61, 53, 69), rgb(174, 162, 217), rgb(126, 179, 184))",
         height: "100vh", overflowX: "hidden", overflowY: "auto",
-    padding: "1px", width: "97%", 
+    padding: "1px", width: "99%", 
       }}
     >
       <Navbar setSearchTerm={setSearchTerm} />

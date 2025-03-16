@@ -1,6 +1,7 @@
 /* Estilos para la barra lateral */
 .sidebar {
     width: 250px;
+    flex-shrink: 0;
     height: 100vh;
     background: linear-gradient(45deg, #5E4A89, #2b2d42);
     padding-top: 20px;
@@ -87,8 +88,8 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
-    background:#5E4A89, #2b2d42;
-    position: relative;
+    background: linear-gradient(45deg, #5E4A89, #2b2d42);
+    position: absolute;
     left: 0;
     top: 100%;
     width: 100%;
@@ -176,10 +177,6 @@
     transform-origin: top;
 }
 
-.sidebar.collapsed {
-    width: 80px;
-    background: linear-gradient(45deg, #5E4A89, #2b2d42);
-  }
   
   .logout {
     position: absolute;
