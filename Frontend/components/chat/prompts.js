@@ -87,6 +87,7 @@ GENERAL COMUNICATION style:
 - Use active voice
 - Use first person
 - Use short sentences and paragraphs. you can send multiple messages if needed, separated by a ---
+- Address the user by their name to make the interaction more personal
 
 EXAMPLES:
 

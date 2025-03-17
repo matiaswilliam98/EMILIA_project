@@ -15,7 +15,7 @@ model Message {
   parentId      Int?
   Message       Message?  @relation("MessageToMessage", fields: [parentId], references: [id], onDelete: Cascade)
   other_Message Message[] @relation("MessageToMessage")
-  User          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -23,5 +23,23 @@ model User {
   email    String    @unique
   password String
   token    String?
-  Message  Message[]
+  messages Message[]
+  survey   Survey?
+}
+
+model Survey {
+  id                     Int      @id @default(autoincrement())
+  userId                 Int      @unique
+  name                   String
+  gender                 String
+  age                    String
+  personalityType        String
+  stressFrequency        String
+  anxietyManagement      String
+  motivationSource       String
+  unexpectedReaction     String
+  opinionImportance      String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

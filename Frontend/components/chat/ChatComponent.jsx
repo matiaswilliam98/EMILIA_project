@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import OpenAI from 'openai';
+import axios from "axios";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
 import { ChatOpenAI } from "@langchain/openai";
@@ -7,6 +8,8 @@ import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages
 import { BufferMemory } from "langchain/memory";
 import { COMBINED_THERAPEUTIC_PROMPT } from "./prompts";
 import config, { validateConfig } from "../../src/config";
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const ChatComponent = () => {
   const [messages, setMessages] = useState([
@@ -18,6 +21,7 @@ const ChatComponent = () => {
   const messagesEndRef = useRef(null);
   const [savedConversations, setSavedConversations] = useState([]);
   const [showSavedConversations, setShowSavedConversations] = useState(false);
+  const [userData, setUserData] = useState(null);
   
   // Referencia a la instancia de OpenAI para OpenRouter
   const openRouter = useRef(
@@ -34,7 +38,7 @@ const ChatComponent = () => {
       : null
   );
   
-  // Validar la configuración al iniciar
+  // Validar la configuración y cargar datos del usuario al iniciar
   useEffect(() => {
     const isConfigValid = validateConfig();
     setConfigError(!isConfigValid);
@@ -49,6 +53,9 @@ const ChatComponent = () => {
     
     // Cargar conversaciones guardadas
     loadSavedConversations();
+    
+    // Cargar datos del usuario
+    fetchUserData();
   }, []);
   
   // Initialize LangChain chat model (solo para OpenAI)
@@ -241,6 +248,35 @@ const ChatComponent = () => {
     }
   };
 
+  // Función para obtener datos del usuario
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('Usuario no autenticado');
+        return;
+      }
+      
+      const response = await axios.get(`${API_URL}/survey/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      setUserData(response.data);
+      
+      // Si es la primera interacción y tenemos un nombre, personalizar el saludo
+      if (messages.length === 1 && response.data.survey?.name) {
+        setMessages([
+          { from: "bot", text: `Hola ${response.data.survey.name}, soy EMILIA. ¿Cómo te sientes hoy? Estoy aquí para escucharte y ayudarte.` },
+        ]);
+      }
+      
+    } catch (error) {
+      console.error('Error al obtener datos del usuario:', error);
+    }
+  };
+
   const handleSendMessage = async (message) => {
     if (!message.trim()) return;
     
@@ -258,10 +294,37 @@ const ChatComponent = () => {
       
       let botResponseText = "";
       
+      // Crear un prompt personalizado con la información del usuario
+      let personalizedPrompt = COMBINED_THERAPEUTIC_PROMPT;
+      
+      // Si tenemos datos del usuario, personalizar el prompt
+      if (userData?.survey) {
+        const survey = userData.survey;
+        
+        // Crear una sección de información del usuario para el prompt
+        const userInfoSection = `
+INFORMACIÓN DEL USUARIO:
+- Nombre: ${survey.name}
+- Género: ${survey.gender}
+- Edad: ${survey.age}
+- Personalidad: ${survey.personalityType}
+- Frecuencia de estrés: ${survey.stressFrequency}
+- Manejo de ansiedad: ${survey.anxietyManagement}
+- Fuente de motivación: ${survey.motivationSource}
+- Reacción ante situaciones inesperadas: ${survey.unexpectedReaction}
+- Importancia de las opiniones ajenas: ${survey.opinionImportance}
+
+Adapta tus respuestas considerando esta información del usuario. Cuando te dirijas al usuario, utiliza su nombre (${survey.name}) para personalizar la conversación. Relaciona tus consejos con su perfil psicológico.
+`;
+        
+        // Insertar esta información al principio del prompt
+        personalizedPrompt = personalizedPrompt.replace("You are EMILIA", `You are EMILIA\n\n${userInfoSection}\n`);
+      }
+      
       if (config.AI.PROVIDER === 'openai') {
         // Usar LangChain con OpenAI
         const langchainMessages = [
-          new SystemMessage(COMBINED_THERAPEUTIC_PROMPT),
+          new SystemMessage(personalizedPrompt),
           ...formatMessagesForLangChain()
         ];
         
@@ -278,7 +341,7 @@ const ChatComponent = () => {
         if (conversationHistory.length === 0 || conversationHistory[0].role !== 'system') {
           conversationHistory.unshift({
             role: 'system',
-            content: COMBINED_THERAPEUTIC_PROMPT
+            content: personalizedPrompt
           });
         }
         
