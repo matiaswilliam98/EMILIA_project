@@ -30,11 +30,11 @@ const MessageInput = ({
         />
         <button 
           onClick={handleSend} 
-          style={{...styles.button, ...(isDisabled ? styles.buttonDisabled : {})}}
-          disabled={isDisabled}
+          style={{...styles.button, ...(isDisabled || !inputMessage.trim() ? styles.buttonDisabled : {})}}
+          disabled={isDisabled || !inputMessage.trim()}
           title="Enviar mensaje"
         >
-          <FiSend />
+          <FiSend size={18} />
         </button>
       </div>
       <div style={styles.disclaimer}>
@@ -54,16 +54,17 @@ const styles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    padding: "10px",
-    background: "white",
-    borderTop: "1px solid #ddd",
+    padding: "12px 16px 16px",
+    background: "#fff",
+    borderTop: "1px solid #eee",
   },
   messageInput: {
     display: "flex",
-    background: "white",
-    borderRadius: "20px",
-    border: "1px solid #ddd",
-    padding: "4px",
+    alignItems: "center",
+    background: "#f8f8f8",
+    borderRadius: "30px",
+    padding: "5px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
   },
   input: {
     flex: 1,
@@ -71,10 +72,14 @@ const styles = {
     border: "none",
     outline: "none",
     fontSize: "15px",
-    borderRadius: "20px",
+    borderRadius: "30px",
     resize: "none",
     fontFamily: "inherit",
     lineHeight: "1.4",
+    color: "#333",
+    background: "transparent",
+    maxHeight: "80px",
+    overflowY: "auto",
   },
   inputDisabled: {
     backgroundColor: "#f5f5f5",
@@ -91,19 +96,20 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: "8px",
-    alignSelf: "center",
-    transition: "background 0.2s ease",
+    marginRight: "4px",
+    transition: "all 0.2s ease",
+    boxShadow: "0 2px 4px rgba(155, 89, 182, 0.2)",
   },
   buttonDisabled: {
     background: "#ccc",
     cursor: "not-allowed",
+    boxShadow: "none",
   },
   disclaimer: {
     fontSize: "11px",
-    color: "#888",
+    color: "#999",
     textAlign: "center",
-    marginTop: "8px",
+    marginTop: "10px",
     fontStyle: "italic",
   },
 };

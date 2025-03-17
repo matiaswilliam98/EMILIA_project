@@ -477,7 +477,7 @@ Adapta tus respuestas considerando esta información del usuario. Cuando te diri
               style={styles.controlButton}
               title="Ver conversaciones guardadas"
             >
-              {showSavedConversations ? "Cerrar" : "Mis conversaciones"}
+              Mis conversaciones
             </button>
             <button 
               onClick={saveCurrentConversation} 
@@ -533,7 +533,7 @@ Adapta tus respuestas considerando esta información del usuario. Cuando te diri
       )}
 
       {/* ÁREA DE MENSAJES */}
-      <div style={styles.messageList}>
+      <div style={styles.messageList} className="chat-scroll">
         <MessageList messages={messages} />
         
         {/* Indicador de escritura */}
@@ -581,6 +581,25 @@ if (typeof document !== 'undefined') {
       0%, 80%, 100% { transform: translateY(0); }
       40% { transform: translateY(-6px); }
     }
+    
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Add enhanced chat scrollbar */
+    .chat-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .chat-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .chat-scroll::-webkit-scrollbar-thumb {
+      background-color: rgba(155, 89, 182, 0.3);
+      border-radius: 6px;
+    }
   `;
   document.head.appendChild(styleEl);
 }
@@ -590,21 +609,20 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     height: "100vh", 
-    width: "calc(100% - 20px)",
-    borderRadius: "16px",
-    background: "#f8f9fa",
+    width: "100%",
+    background: "#ffffff",
     overflow: "hidden", 
-    margin: "auto", 
-    boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-    border: "1px solid rgba(0,0,0,0.05)",
+    margin: "0", 
+    border: "none",
   },
   header: {
-    background: "linear-gradient(135deg, #7e57c2 0%, #9b59b6 100%)",
+    background: "#9b59b6",
     color: "white",
-    padding: "16px 24px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+    padding: "16px 20px",
+    textAlign: "center",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
     position: "relative",
-    zIndex: 1,
+    zIndex: 2,
   },
   headerContent: {
     display: "flex",
@@ -615,44 +633,53 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "12px",
+    marginBottom: "4px",
   },
   logoImage: {
-    width: "36px",
-    height: "36px",
+    width: "45px",
+    height: "45px",
     borderRadius: "50%",
     border: "2px solid white",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    objectFit: "cover",
   },
   headerText: {
     margin: 0,
     color: "white",
-    fontSize: "1.6rem",
+    fontSize: "1.75rem",
     fontWeight: "600",
     letterSpacing: "0.5px",
   },
   headerSubtext: {
-    margin: "5px 0 0 0",
-    color: "rgba(255, 255, 255, 0.9)",
+    margin: "4px 0 12px 0",
+    color: "rgba(255, 255, 255, 0.95)",
     fontSize: "0.95rem",
-    fontWeight: "normal",
+    fontWeight: "400",
   },
   conversationControls: {
     display: "flex",
     gap: "10px",
-    marginTop: "12px",
+    marginTop: "6px",
+    justifyContent: "center",
   },
   controlButton: {
-    padding: "6px 12px",
-    borderRadius: "20px",
+    padding: "8px 20px",
+    borderRadius: "25px",
     border: "1px solid rgba(255, 255, 255, 0.3)",
-    background: "rgba(255, 255, 255, 0.2)",
+    background: "rgba(255, 255, 255, 0.15)",
     color: "white",
-    fontSize: "0.85rem",
+    fontSize: "0.9rem",
     cursor: "pointer",
     transition: "all 0.2s ease",
     outline: "none",
+    fontWeight: "normal",
+    minWidth: "100px",
+    textAlign: "center",
     "&:hover": {
-      background: "rgba(255, 255, 255, 0.3)",
+      background: "rgba(255, 255, 255, 0.25)",
+    },
+    "&:active": {
+      transform: "translateY(1px)",
     },
     "&:disabled": {
       opacity: 0.5,
@@ -661,47 +688,61 @@ const styles = {
   },
   savedConversationsPanel: {
     background: "#fff",
-    padding: "12px",
+    padding: "16px",
     borderBottom: "1px solid #e0e0e0",
-    maxHeight: "200px",
+    maxHeight: "240px",
     overflowY: "auto",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+    animation: "slideDown 0.3s ease-in-out",
+    zIndex: 1,
   },
   savedConversationsTitle: {
-    fontSize: "1rem",
-    fontWeight: "500",
+    fontSize: "1.1rem",
+    fontWeight: "600",
     color: "#333",
-    margin: "0 0 10px 0",
+    margin: "0 0 12px 0",
+    borderBottom: "2px solid #9b59b6",
+    paddingBottom: "8px",
+    display: "inline-block",
   },
   noConversations: {
     fontSize: "0.9rem",
     color: "#666",
     fontStyle: "italic",
     textAlign: "center",
+    padding: "20px 0",
+    background: "#f9f9f9",
+    borderRadius: "8px",
   },
   conversationsList: {
     display: "flex",
     flexDirection: "column",
-    gap: "6px",
+    gap: "8px",
   },
   conversationItem: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "8px 12px",
-    borderRadius: "8px",
-    background: "#f1f1f1",
+    padding: "10px 16px",
+    borderRadius: "10px",
+    background: "#f5f5f8",
     cursor: "pointer",
-    transition: "background 0.2s ease",
+    transition: "all 0.2s ease",
+    border: "1px solid transparent",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
     "&:hover": {
-      background: "#e0e0e0",
+      background: "#f0e8f5",
+      borderColor: "rgba(155, 89, 182, 0.3)",
+      transform: "translateY(-1px)",
     },
   },
   conversationInfo: {
     display: "flex",
     flexDirection: "column",
+    gap: "3px",
   },
   conversationTitle: {
-    fontSize: "0.9rem",
+    fontSize: "0.95rem",
     fontWeight: "500",
     color: "#333",
   },
@@ -710,37 +751,38 @@ const styles = {
     color: "#666",
   },
   deleteButton: {
-    width: "24px",
-    height: "24px",
+    width: "28px",
+    height: "28px",
     borderRadius: "50%",
     border: "none",
-    background: "rgba(0,0,0,0.1)",
-    color: "#666",
-    fontSize: "1rem",
+    background: "rgba(155, 89, 182, 0.1)",
+    color: "#9b59b6",
+    fontSize: "1.1rem",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
     transition: "all 0.2s ease",
     "&:hover": {
-      background: "rgba(0,0,0,0.2)",
-      color: "#333",
+      background: "rgba(155, 89, 182, 0.2)",
+      color: "#8e44ad",
+      transform: "scale(1.1)",
     },
   },
   messageList: {
     flex: 1,
     overflowY: "auto",
     overflowX: "hidden",
-    padding: "16px",
+    padding: "10px 0",
     maxHeight: "calc(100vh - 190px)",
-    backgroundColor: "#f8f9fa",
-    backgroundImage: "radial-gradient(circle at center, rgba(155, 89, 182, 0.03) 0%, rgba(229, 229, 229, 0.01) 70%)",
+    backgroundColor: "#ffffff",
+    scrollBehavior: "smooth",
   },
   loadingIndicator: {
     padding: "16px",
     textAlign: "center",
     fontStyle: "italic",
-    color: "#666",
+    color: "#9b59b6",
     fontSize: "0.9rem",
     opacity: 0.8,
     animation: "pulse 2s infinite ease-in-out",
@@ -748,17 +790,17 @@ const styles = {
   typingIndicatorContainer: {
     display: "flex",
     alignItems: "flex-start",
-    margin: "8px 0",
-    paddingLeft: "8px",
+    margin: "8px 0 12px 16px",
   },
   typingAvatar: {
-    width: "36px",
-    height: "36px",
-    marginRight: "8px",
+    width: "38px",
+    height: "38px",
+    marginRight: "10px",
     borderRadius: "50%",
     overflow: "hidden",
     border: "1px solid #e0e0e0",
     backgroundColor: "white",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   typingAvatarImg: {
     width: "100%",
@@ -768,44 +810,42 @@ const styles = {
   typingBubble: {
     display: "flex",
     alignItems: "center",
-    background: "#e8f4f8",
+    background: "#f0f4f9",
     padding: "12px 16px",
     borderRadius: "18px 18px 18px 4px",
-    maxWidth: "60px",
+    maxWidth: "70px",
     height: "24px",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
+    border: "1px solid #e0e7f0",
   },
   typingDot: {
     width: "8px",
     height: "8px",
-    backgroundColor: "#666",
+    backgroundColor: "#9b59b6",
     borderRadius: "50%",
-    margin: "0 2px",
-    opacity: 0.6,
+    margin: "0 3px",
+    opacity: 0.7,
     animation: "bounce 1.4s infinite ease-in-out both",
     animationDelay: "calc(var(--i) * 0.2s)",
   },
   "@media (max-width: 768px)": {
-    chatContainer: {
-      width: "100%", 
-      height: "100vh", 
-      borderRadius: "0",
-      margin: 0,
-      border: "none",
-    },
     header: {
-      padding: "12px",
+      padding: "14px 10px",
     },
     headerText: {
-      fontSize: "1.4rem",
+      fontSize: "1.5rem",
+    },
+    logoImage: {
+      width: "38px",
+      height: "38px",
     },
     savedConversationsPanel: {
-      maxHeight: "150px",
+      maxHeight: "180px",
     },
-  },
-  "@media (max-width: 1024px)": {
-    chatContainer: {
-      width: "calc(100% - 10px)",
+    controlButton: {
+      padding: "6px 15px",
+      fontSize: "0.85rem",
+      minWidth: "auto",
     },
   },
 };

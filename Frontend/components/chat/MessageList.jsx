@@ -21,7 +21,9 @@ const MessageList = ({ messages }) => {
     // Función para formatear la hora actual
     const formatMessageTime = () => {
       const now = new Date();
-      return `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+      const hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
     };
     
     return (
@@ -41,62 +43,50 @@ const MessageList = ({ messages }) => {
               className={isNewMessage ? 'fade-in-message' : ''}
               style={{ 
                 ...styles.message, 
-                justifyContent: msg.from === "bot" ? "flex-start" : "flex-end",
-                marginBottom: isLastInSequence ? "15px" : "4px",
+                ...(msg.from === "user" ? styles.userMessage : {}),
+                marginBottom: isLastInSequence ? "16px" : "4px",
                 opacity: isNewMessage ? 0 : 1,
                 animation: isNewMessage ? 'fadeIn 0.3s ease-in-out forwards' : 'none'
               }}
             >
               {/* Contenedor del avatar y mensaje */}
               <div style={styles.messageContainer}>
-                {/* Avatar section */}
-                <div style={styles.avatarContainer}>
-                  {msg.from === "bot" && isFirstInSequence && (
-                    <div style={styles.avatarWrapper}>
-                      <img src="/emiliaPersonaje2.jpeg" alt="EMILIA" style={styles.avatar} />
-                    </div>
-                  )}
-                  {msg.from === "bot" && !isFirstInSequence && 
-                    <div style={styles.avatarPlaceholder}></div>
-                  }
-                </div>
+                {/* Avatar for bot */}
+                {msg.from === "bot" && isFirstInSequence && (
+                  <div style={styles.avatarWrapper}>
+                    <img src="/emiliaPersonaje2.jpeg" alt="EMILIA" style={styles.avatar} />
+                  </div>
+                )}
+                {msg.from === "bot" && !isFirstInSequence && 
+                  <div style={styles.avatarPlaceholder}></div>
+                }
                 
                 {/* Message bubble */}
                 <div style={{ 
                   ...styles.messageBubble,
-                  background: msg.from === "bot" 
-                    ? "linear-gradient(135deg, #e8f4f8 0%, #e0f2f1 100%)" 
-                    : "linear-gradient(135deg, #af7ac5 0%, #9b59b6 100%)",
-                  color: msg.from === "bot" ? "#333333" : "white",
+                  ...(msg.from === "bot" ? styles.botBubble : styles.userBubble),
                   borderRadius: getBorderRadius(msg.from, isFirstInSequence, isLastInSequence),
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-                  transform: `scale(${isNewMessage ? 0.95 : 1})`,
-                  transition: 'all 0.2s ease-out',
                 }}>
-                  <div style={{
-                    ...styles.messageText,
-                    textAlign: msg.from === "bot" ? "left" : "right"
-                  }}>
+                  <div style={styles.messageText}>
                     {msg.text}
                   </div>
                   
                   {/* Timestamp */}
                   <div style={{
                     ...styles.timestamp,
-                    color: msg.from === "bot" ? "#99aab5" : "rgba(255,255,255,0.7)"
+                    color: msg.from === "bot" ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.7)"
                   }}>
                     {formatMessageTime()}
                   </div>
                 </div>
               </div>
               
-              {/* User label */}
-              {msg.from === "user" && isFirstInSequence && 
-                <div style={styles.userAvatar}>Tú</div>
-              }
-              {msg.from === "user" && !isFirstInSequence && 
-                <div style={styles.userAvatarPlaceholder}></div>
-              }
+              {/* User avatar/label */}
+              {msg.from === "user" && isFirstInSequence && (
+                <div style={styles.userBadge}>
+                  <span>Tú</span>
+                </div>
+              )}
             </div>
           );
         })}
@@ -107,15 +97,15 @@ const MessageList = ({ messages }) => {
 // Función para determinar el radio de borde según la posición en la secuencia
 const getBorderRadius = (from, isFirst, isLast) => {
   if (from === "bot") {
-    if (isFirst && isLast) return "18px 18px 18px 4px"; // Único mensaje
-    if (isFirst) return "18px 18px 8px 4px"; // Primer mensaje
-    if (isLast) return "8px 18px 18px 4px"; // Último mensaje
-    return "8px 18px 8px 4px"; // Mensaje intermedio
+    if (isFirst && isLast) return "18px 18px 18px 0"; 
+    if (isFirst) return "18px 18px 6px 0"; 
+    if (isLast) return "6px 18px 18px 0"; 
+    return "6px 18px 6px 0"; 
   } else { // usuario
-    if (isFirst && isLast) return "18px 4px 18px 18px"; // Único mensaje
-    if (isFirst) return "18px 4px 8px 18px"; // Primer mensaje
-    if (isLast) return "8px 4px 18px 18px"; // Último mensaje
-    return "8px 4px 8px 18px"; // Mensaje intermedio
+    if (isFirst && isLast) return "18px 0 18px 18px"; 
+    if (isFirst) return "18px 0 6px 18px"; 
+    if (isLast) return "6px 0 18px 18px"; 
+    return "6px 0 6px 18px"; 
   }
 };
   
@@ -132,72 +122,89 @@ const styles = {
   messages: {
     display: "flex",
     flexDirection: "column",
-    padding: "10px",
+    padding: "0 16px",
   },
   message: {
     display: "flex",
-    alignItems: "flex-start",
-    transition: "opacity 0.3s ease-in-out",
+    alignItems: "flex-end",
+    position: "relative",
+    marginBottom: "4px",
+    maxWidth: "85%",
+    paddingRight: "48px",
+  },
+  userMessage: {
+    alignSelf: "flex-end",
+    flexDirection: "row-reverse",
+    paddingRight: "0",
+    paddingLeft: "48px",
   },
   messageContainer: {
     display: "flex",
-    maxWidth: "75%",
-  },
-  avatarContainer: {
-    width: "40px",
-    marginRight: "8px",
-    display: "flex",
-    alignItems: "flex-start",
+    alignItems: "flex-end",
+    maxWidth: "100%",
   },
   avatarWrapper: {
-    borderRadius: "50%",
-    padding: "2px",
-    background: "white",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
-  },
-  avatar: {
     width: "36px",
     height: "36px",
     borderRadius: "50%",
-    border: "1px solid #e0e0e0",
+    marginRight: "8px",
+    flexShrink: 0,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+  },
+  avatar: {
+    width: "100%",
+    height: "100%",
+    borderRadius: "50%",
+    objectFit: "cover",
   },
   avatarPlaceholder: {
-    width: "40px",
+    width: "36px",
+    marginRight: "8px",
+    flexShrink: 0,
   },
   messageBubble: {
     position: "relative",
-    padding: "12px 16px",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+    padding: "10px 12px",
     maxWidth: "100%",
+    wordBreak: "break-word",
+  },
+  botBubble: {
+    background: "#f0f4f9",
+    color: "#333",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+  },
+  userBubble: {
+    background: "#9b59b6",
+    color: "#fff",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
   },
   messageText: {
-    wordWrap: "break-word",
-    overflowWrap: "break-word",
-    whiteSpace: "pre-wrap",
-    lineHeight: "1.5",
     fontSize: "15px",
+    lineHeight: "1.4",
+    whiteSpace: "pre-wrap",
+    textAlign: "left",
   },
-  userAvatar: {
+  userBadge: {
+    position: "absolute",
+    right: "10px",
+    bottom: "0",
+    width: "28px",
+    height: "28px",
+    borderRadius: "50%",
+    background: "rgba(155, 89, 182, 0.1)",
+    color: "#9b59b6",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     fontSize: "12px",
-    color: "#666",
-    marginLeft: "8px",
-    alignSelf: "center",
-    fontStyle: "italic",
-  },
-  userAvatarPlaceholder: {
-    width: "20px",
-    marginLeft: "8px",
+    fontWeight: "500",
   },
   timestamp: {
     fontSize: "10px",
     marginTop: "4px",
     textAlign: "right",
-    opacity: 0.7,
+    opacity: 0.8,
   },
-  '@keyframes fadeIn': {
-    from: { opacity: 0, transform: 'translateY(10px)' },
-    to: { opacity: 1, transform: 'translateY(0)' }
-  }
 };
 
 // Añadir los estilos CSS para animaciones
@@ -209,8 +216,28 @@ const createStyles = () => {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
       }
+      
       .fade-in-message {
         animation: fadeIn 0.3s ease-in-out forwards;
+      }
+      
+      /* Add smooth scrolling to containers */
+      div {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(155, 89, 182, 0.2) transparent;
+      }
+      
+      div::-webkit-scrollbar {
+        width: 4px;
+      }
+      
+      div::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      div::-webkit-scrollbar-thumb {
+        background-color: rgba(155, 89, 182, 0.2);
+        border-radius: 4px;
       }
     `;
     document.head.appendChild(styleEl);
