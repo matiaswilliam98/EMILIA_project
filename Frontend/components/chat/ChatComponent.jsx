@@ -302,20 +302,44 @@ const ChatComponent = () => {
         const survey = userData.survey;
         
         // Crear una sección de información del usuario para el prompt
-        const userInfoSection = `
+        let userInfoSection = `
 INFORMACIÓN DEL USUARIO:
-- Nombre: ${survey.name}
-- Género: ${survey.gender}
-- Edad: ${survey.age}
-- Personalidad: ${survey.personalityType}
-- Frecuencia de estrés: ${survey.stressFrequency}
-- Manejo de ansiedad: ${survey.anxietyManagement}
-- Fuente de motivación: ${survey.motivationSource}
-- Reacción ante situaciones inesperadas: ${survey.unexpectedReaction}
-- Importancia de las opiniones ajenas: ${survey.opinionImportance}
-
-Adapta tus respuestas considerando esta información del usuario. Cuando te dirijas al usuario, utiliza su nombre (${survey.name}) para personalizar la conversación. Relaciona tus consejos con su perfil psicológico.
+- Nombre: ${survey.name || 'No disponible'}
+- Género: ${survey.gender || 'No disponible'}
+- Edad: ${survey.age || 'No disponible'}
+- Personalidad: ${survey.personalityType || 'No disponible'}
 `;
+
+        // Verificar si tenemos los nuevos datos de bienestar del usuario
+        if (survey.wellbeingResponses) {
+          const wellbeing = survey.wellbeingResponses;
+          userInfoSection += `
+RESULTADOS DE BIENESTAR:
+- Nivel de alegría: ${wellbeing.cheerful || 'No disponible'}
+- Nivel de calma: ${wellbeing.calm || 'No disponible'}
+- Nivel de energía: ${wellbeing.active || 'No disponible'}
+- Calidad de descanso: ${wellbeing.rested || 'No disponible'}
+- Interés en actividades: ${wellbeing.interesting || 'No disponible'}
+- Nivel de depresión: ${wellbeing.depressed || 'No disponible'}
+- Nivel de ansiedad: ${wellbeing.anxious || 'No disponible'}
+- Sentimientos de desesperanza: ${wellbeing.hopeless || 'No disponible'}
+- Sentimientos de paz: ${wellbeing.peaceful || 'No disponible'}
+- Nivel de felicidad: ${wellbeing.happy || 'No disponible'}
+`;
+        }
+
+        // Añadir resultados de diagnóstico si están disponibles
+        if (survey.diagnosticResults) {
+          const diagnostic = survey.diagnosticResults;
+          userInfoSection += `
+RESULTADOS DIAGNÓSTICOS:
+- Índice de Bienestar WHO-5: ${diagnostic.who5Score || 'No disponible'}% - ${diagnostic.who5Result || 'No disponible'}
+- Índice de Salud Mental MHI-5: ${diagnostic.mhi5Score ? Math.round(diagnostic.mhi5Score) : 'No disponible'}% - ${diagnostic.mhi5Result || 'No disponible'}
+`;
+        }
+        
+        userInfoSection += `
+Adapta tus respuestas considerando esta información del usuario. Cuando te dirijas al usuario, utiliza su nombre (${survey.name || 'Usuario'}) para personalizar la conversación. Relaciona tus consejos con su perfil psicológico y resultados de bienestar.`;
         
         // Insertar esta información al principio del prompt
         personalizedPrompt = personalizedPrompt.replace("You are EMILIA", `You are EMILIA\n\n${userInfoSection}\n`);

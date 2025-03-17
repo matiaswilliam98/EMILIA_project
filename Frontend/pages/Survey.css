@@ -1,115 +1,293 @@
-/* Estilos generales */
+/* Survey component styles */
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f5f3ff;
   margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  padding: 0;
+  background-color: #f5f5f5;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Contenedor principal */
 .survey-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-  padding: 20px;
+  width: 100vw; /* Full viewport width */
+  background: linear-gradient(135deg, #9b59b6 0%, #6a1b9a 50%, #4a148c 100%);
+  padding: 40px 20px;
   box-sizing: border-box;
+  position: absolute; /* Position absolute to ensure it covers the whole screen */
+  left: 0;
+  top: 0;
+  overflow-y: auto; /* Allow vertical scrolling */
+  max-height: 100vh; /* Ensure the container doesn't exceed viewport height */
 }
 
-/* Caja de preguntas */
 .question-box {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  width: 90%;
-  max-width: 600px;
+  background: #1e1e1e; /* Darker background to match the image */
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  width: 100%;
+  max-width: 650px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  gap: 30px;
+  animation: fadeIn 0.5s ease-out;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+  text-align: center;
+  margin: 20px 0; /* Add some margin to ensure it's not flush with edges */
 }
 
-/* Pregunta */
-.question-text {
+/* Survey header */
+.survey-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo h3 {
+  margin: 0;
+  color: #6a1b9a;
   font-size: 1.4rem;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 20px 0;
+  font-weight: 700;
+  background: linear-gradient(135deg, #9b59b6 0%, #6a1b9a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Campo de texto y select */
+.survey-title {
+  font-size: 1.2rem;
+  color: #aaa; /* Lighter color for dark background */
+  text-align: center;
+  margin-top: 5px;
+}
+
+/* Progress bar */
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: #333; /* Darker background for progress bar */
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(to right, #9b59b6, #6a1b9a, #4a148c);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.question-text {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #f5f5f5; /* Lighter text for dark background */
+  margin: 0 0 24px 0;
+  text-align: center;
+  line-height: 1.4;
+  width: 100%;
+}
+
 .input-field {
   width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 16px 18px;
+  border: 2px solid #444; /* Darker border for dark theme */
+  border-radius: 12px;
+  font-size: 1.1rem;
   box-sizing: border-box;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  background-color: #2a2a2a; /* Darker input background */
+  color: #f5f5f5; /* Lighter text for dark background */
+  text-align: center;
 }
 
 .input-field:focus {
   outline: none;
   border-color: #9b59b6;
-  box-shadow: 0 0 0 2px rgba(155, 89, 182, 0.2);
+  box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
+  background-color: #333; /* Slightly lighter when focused */
 }
 
 /* Botones de opciones */
 .options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   width: 100%;
+  align-items: center;
 }
 
 .option-button {
-  padding: 12px 15px;
-  background: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  text-align: left;
+  padding: 18px 20px;
+  background: #2a2a2a; /* Darker button background */
+  border: 2px solid #444; /* Darker border */
+  border-radius: 12px;
+  font-size: 1.1rem;
+  text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  color: #f5f5f5; /* Lighter text for dark background */
 }
 
 .option-button:hover {
-  background: #f1f3f5;
-  border-color: #ccc;
+  background: #333; /* Slightly lighter on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .option-button.selected {
-  background: rgba(155, 89, 182, 0.15);
+  background: rgba(155, 89, 182, 0.3); /* More visible selected state */
   border-color: #9b59b6;
-  font-weight: 500;
+  font-weight: 600;
+  color: #f0f0f0;
+  background: linear-gradient(to right, rgba(155, 89, 182, 0.3) 0%, rgba(106, 27, 154, 0.3) 100%);
+}
+
+.option-button.selected::after {
+  content: "✓";
+  position: absolute;
+  right: 20px;
+  font-size: 1.2rem;
+  color: #9b59b6;
+}
+
+/* Info box for educational text */
+.info-box {
+  background: linear-gradient(to right, rgba(155, 89, 182, 0.1) 0%, rgba(106, 27, 154, 0.1) 100%);
+  border-radius: 15px;
+  padding: 25px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  border-left: 4px solid #9b59b6;
+  animation: pulseGlow 2s infinite alternate;
+  margin-bottom: 20px;
+}
+
+.info-box p {
+  margin: 10px 0;
+  line-height: 1.6;
+  color: #ddd; /* Lighter color for dark background */
+  font-size: 1.1rem;
+}
+
+.info-box p:first-child {
+  margin-top: 0;
+  font-weight: 600;
+  color: #f0f0f0; /* White for better contrast */
+  font-size: 1.4rem; /* Larger font size for the first line */
+  margin-bottom: 20px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+@keyframes pulseGlow {
+  from {
+    box-shadow: 0 0 5px rgba(155, 89, 182, 0.2);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(155, 89, 182, 0.4);
+  }
+}
+
+/* Button container */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  width: 100%;
+  padding-bottom: 10px; /* Ensure there's space at the bottom */
+}
+
+/* Botón anterior */
+.prev-button {
+  padding: 16px 30px;
+  background: #2a2a2a; /* Darker button background */
+  color: #bb8fce; /* Brighter purple for dark background */
+  border: 2px solid #9b59b6;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  text-align: center;
+}
+
+.prev-button:hover {
+  background: rgba(155, 89, 182, 0.15);
+  transform: translateY(-3px);
+}
+
+.prev-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Botón siguiente */
 .next-button {
-  padding: 14px 20px;
-  background: linear-gradient(135deg, #7e57c2 0%, #9b59b6 100%);
+  padding: 16px 30px;
+  background: linear-gradient(135deg, #9b59b6 0%, #6a1b9a 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  align-self: flex-end;
-  margin-top: 10px;
+  min-width: 140px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
 }
 
 .next-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(155, 89, 182, 0.4);
+  background: linear-gradient(135deg, #a66bbe 0%, #7b2caa 100%);
 }
 
 .next-button:disabled {
-  background: #ccc;
+  background: #555; /* Darker disabled button */
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -117,65 +295,266 @@ body {
 
 .error-message {
   color: #e74c3c;
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin: 10px 0;
+  text-align: center;
+  padding: 10px;
+  background-color: rgba(231, 76, 60, 0.15);
+  border-radius: 8px;
+  width: 100%;
 }
 
 .progress-indicator {
-  margin-top: 15px;
+  margin-top: 20px;
+  margin-bottom: 10px;
   text-align: center;
-  color: #666;
-  font-size: 0.9rem;
+  color: #aaa; /* Lighter color for dark background */
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
 }
 
+.progress-indicator::before {
+  content: "";
+  height: 4px;
+  background: #444; /* Darker for dark theme */
+  flex: 1;
+  max-width: 100px;
+  border-radius: 2px;
+}
+
+.progress-indicator::after {
+  content: "";
+  height: 4px;
+  background: #444; /* Darker for dark theme */
+  flex: 1;
+  max-width: 100px;
+  border-radius: 2px;
+}
+
+/* Success box */
 .success-box {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  width: 90%;
-  max-width: 600px;
+  background: #1e1e1e; /* Darker background */
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 650px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+  animation: successFadeIn 0.6s ease-out;
+  margin: 20px 0; /* Add margin to avoid flush with edges */
+  overflow-y: auto; /* Allow scrolling if content is too long */
+  max-height: 90vh; /* Limit max height */
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 40px;
+  margin-bottom: 25px;
+  box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+  animation: scaleIn 0.5s ease-out 0.2s both;
+}
+
+/* Diagnostic results styles */
+.diagnostic-results {
+  background: rgba(155, 89, 182, 0.1);
+  border-radius: 15px;
+  padding: 25px;
+  width: 100%;
+  margin: 20px 0 30px;
+  text-align: left;
+}
+
+.diagnostic-results h3 {
+  color: #bb8fce;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.result-item {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(155, 89, 182, 0.2);
+}
+
+.result-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.result-item h4 {
+  color: #f0f0f0;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.result-item .score {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #9b59b6;
+  margin: 5px 0;
+  text-align: center;
+}
+
+.result-item .interpretation {
+  color: #ccc;
+  font-size: 1rem;
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(155, 89, 182, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes successFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .success-box h2 {
   color: #2ecc71;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  font-size: 2.2rem;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .success-box p {
-  color: #666;
-  margin-bottom: 30px;
-  line-height: 1.6;
+  color: #ddd; /* Lighter color for dark background */
+  margin-bottom: 40px;
+  line-height: 1.7;
+  font-size: 1.2rem;
+  max-width: 500px;
 }
 
 .chat-button {
-  padding: 14px 25px;
-  background: linear-gradient(135deg, #7e57c2 0%, #9b59b6 100%);
+  padding: 18px 35px;
+  background: linear-gradient(135deg, #9b59b6 0%, #6a1b9a 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 12px;
+  font-size: 1.2rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  min-width: 220px;
+  box-shadow: 0 6px 15px rgba(155, 89, 182, 0.3);
+  margin-bottom: 20px; /* Add margin to ensure button is visible */
 }
 
 .chat-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(155, 89, 182, 0.4);
+  background: linear-gradient(135deg, #a66bbe 0%, #7b2caa 100%);
 }
 
+/* Responsive design */
 @media (max-width: 768px) {
   .question-box, .success-box {
-    padding: 20px;
+    padding: 30px;
     width: 95%;
   }
   
   .question-text {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+  }
+  
+  .input-field, .option-button {
+    padding: 14px 16px;
+    font-size: 1rem;
+  }
+  
+  .next-button, .chat-button, .prev-button {
+    padding: 14px 22px;
+    font-size: 1rem;
+    min-width: 120px;
+  }
+  
+  .success-box h2 {
+    font-size: 1.8rem;
+  }
+  
+  .success-box p {
+    font-size: 1rem;
+  }
+
+  .success-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 35px;
+  }
+  
+  .info-box {
+    padding: 20px;
+  }
+  
+  .info-box p {
+    font-size: 1rem;
+  }
+  
+  .diagnostic-results {
+    padding: 20px;
+  }
+  
+  .result-item .score {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .survey-container {
+    padding: 20px 15px;
+  }
+  
+  .question-box, .success-box {
+    padding: 25px 20px;
+    border-radius: 15px;
+  }
+  
+  .question-text {
+    font-size: 1.3rem;
+    margin-bottom: 18px;
+  }
+
+  .button-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .prev-button, .next-button {
+    width: 100%;
+    min-width: auto;
   }
 }

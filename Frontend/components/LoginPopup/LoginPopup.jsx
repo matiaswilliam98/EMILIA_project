@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
 import axios from "axios";
 import "./LoginPopup.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 
-const LoginPopup = ({ onClose }) => {
+const LoginPopup = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -32,7 +31,7 @@ const LoginPopup = ({ onClose }) => {
   // Enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-//validacion de que marque el checkbox
+    //validacion de que marque el checkbox
     if (!isLogin && !acceptTerms) {
       setMessage("Debes aceptar los términos y condiciones para registrarte.");
       return;
@@ -61,21 +60,17 @@ const LoginPopup = ({ onClose }) => {
       });
       console.log("✅ Respuesta del backend:", response.data);
       if (response.data.success) {
+        // Store token in localStorage regardless of login or register
+        const { token, user } = response.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        
         if (isLogin) {
-          const { token, user } = response.data;
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
+          // If login, redirect to dashboard
           navigate("/dashboard");
         } else {
-          setMessage("¡Usuario registrado correctamente!");
-          setTimeout(() => {
-            setMessage(""); // Borra el mensaje
-            if (typeof onClose === "function") {
-              onClose();
-            }
-          }, 2500);
-          //alert("¡Usuario registrado correctamente!");
-          //onClose(); // Cierra el popup de registro
+          // If register, redirect to survey
+          navigate("/survey");
         }
       }
     } catch (error) {
@@ -210,10 +205,6 @@ const LoginPopup = ({ onClose }) => {
       )}
     </div>
   );
-};
-
-LoginPopup.propTypes = {
-  onClose: PropTypes.func,
 };
 
 export default LoginPopup;

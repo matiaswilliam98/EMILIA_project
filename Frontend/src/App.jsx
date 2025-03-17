@@ -20,7 +20,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/survey" element={<Survey />} />
+        <Route
+          path="/survey"
+          element={
+            <ProtectedRoute>
+              <Survey />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/calendar" element={<EmotionCalendar />} />
       </Routes>
     </Router>
