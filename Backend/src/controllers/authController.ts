@@ -1,15 +1,35 @@
 import { Request, Response } from "express";
 import { registerUser, loginUser, logoutUser } from "../services/authService";
+import jwt from "jsonwebtoken";
+import prisma from "../prisma";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log("🔍 Datos recibidos en el registro:", req.body);
     const newUser = await registerUser(req.body);
+    
+    // Generate JWT token for the new user
+    const token = jwt.sign(
+      { id: newUser.id, email: newUser.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    );
+    
+    // Update user with token
+    await prisma.user.update({
+      where: { id: newUser.id },
+      data: { token }
+    });
+    
     console.log("✅ Usuario registrado:", newUser);
     res.status(201).json({
       success: true,
       message: "Usuario registrado con éxito.",
-      newUser,
+      token,
+      user: {
+        id: newUser.id,
+        email: newUser.email
+      }
     });
   } catch (error: any) {
     console.error("❌ Error en el registro:", error.message);

@@ -1,16 +1,33 @@
 import prisma from "../prisma";
 import { PrismaClient } from "@prisma/client";
 
+// Updated interface for the new survey data structure
 export interface SurveyData {
   name: string;
   gender: string;
   age: string;
   personalityType: string;
-  stressFrequency: string;
-  anxietyManagement: string;
-  motivationSource: string;
-  unexpectedReaction: string;
-  opinionImportance: string;
+  
+  // New fields
+  wellbeingResponses: {
+    cheerful: string;
+    calm: string;
+    active: string;
+    rested: string;
+    interesting: string;
+    depressed: string;
+    anxious: string;
+    hopeless: string;
+    peaceful: string;
+    happy: string;
+  };
+  
+  diagnosticResults: {
+    who5Score: number;
+    who5Result: string;
+    mhi5Score: number;
+    mhi5Result: string;
+  };
 }
 
 // Cast prisma to any to bypass TypeScript errors until the Prisma client is properly generated
@@ -23,36 +40,28 @@ export const createOrUpdateSurvey = async (userId: number, data: SurveyData) => 
       where: { userId }
     });
 
+    // Create the update data object
+    const surveyData = {
+      name: data.name,
+      gender: data.gender,
+      age: data.age,
+      personalityType: data.personalityType,
+      wellbeingResponses: data.wellbeingResponses,
+      diagnosticResults: data.diagnosticResults
+    };
+
     if (existingSurvey) {
       // Update existing survey
       return await prismaAny.survey.update({
         where: { userId },
-        data: {
-          name: data.name,
-          gender: data.gender,
-          age: data.age,
-          personalityType: data.personalityType,
-          stressFrequency: data.stressFrequency,
-          anxietyManagement: data.anxietyManagement,
-          motivationSource: data.motivationSource,
-          unexpectedReaction: data.unexpectedReaction,
-          opinionImportance: data.opinionImportance,
-        }
+        data: surveyData
       });
     } else {
       // Create new survey
       return await prismaAny.survey.create({
         data: {
           userId,
-          name: data.name,
-          gender: data.gender,
-          age: data.age,
-          personalityType: data.personalityType,
-          stressFrequency: data.stressFrequency,
-          anxietyManagement: data.anxietyManagement,
-          motivationSource: data.motivationSource,
-          unexpectedReaction: data.unexpectedReaction,
-          opinionImportance: data.opinionImportance,
+          ...surveyData
         }
       });
     }

@@ -17,16 +17,15 @@ export const submitSurvey = async (req: AuthRequest, res: Response) => {
     }
 
     const userId = req.user.id;
+    
+    // Extract survey data with required fields
     const surveyData: SurveyData = {
       name: req.body.name,
       gender: req.body.gender,
       age: req.body.age,
       personalityType: req.body.personalityType,
-      stressFrequency: req.body.stressFrequency,
-      anxietyManagement: req.body.anxietyManagement,
-      motivationSource: req.body.motivationSource,
-      unexpectedReaction: req.body.unexpectedReaction,
-      opinionImportance: req.body.opinionImportance,
+      wellbeingResponses: req.body.wellbeingResponses,
+      diagnosticResults: req.body.diagnosticResults
     };
 
     const survey = await createOrUpdateSurvey(userId, surveyData);
@@ -43,16 +42,16 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ error: "No autorizado" });
     }
-
+    
     const userId = req.user.id;
-    const userWithSurvey = await getUserWithSurvey(userId);
+    const user = await getUserWithSurvey(userId);
     
-    // Remove sensitive information like password
-    const { password, ...userInfo } = userWithSurvey;
+    // Remove password from the response
+    const { password, ...userWithoutPassword } = user;
     
-    res.status(200).json(userInfo);
+    res.status(200).json(userWithoutPassword);
   } catch (error) {
-    console.error("Error fetching user profile:", error);
-    res.status(500).json({ error: "Error al obtener el perfil de usuario" });
+    console.error("Error getting user profile:", error);
+    res.status(500).json({ error: "Error al obtener el perfil del usuario" });
   }
 }; 
