@@ -1,9 +1,36 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 
+// Simple YouTube play icon component
+const PlayIcon = () => (
+  <svg 
+    viewBox="0 0 24 24" 
+    width="16" 
+    height="16" 
+    fill="#9b59b6" 
+    style={{ marginRight: '6px', flexShrink: 0 }}
+  >
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+  </svg>
+);
+
+// Function to extract YouTube video ID from URL
+const extractVideoId = (url) => {
+  let videoId = '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  
+  if (match && match[2].length === 11) {
+    videoId = match[2];
+  }
+  
+  return videoId;
+};
+
 const MessageList = ({ messages }) => {
     // Estado para controlar las animaciones de los mensajes
     const [visibleMessages, setVisibleMessages] = useState([]);
+    const [expandedVideos, setExpandedVideos] = useState({});
     
     // Efecto para animar la entrada de nuevos mensajes
     useEffect(() => {
@@ -18,12 +45,177 @@ const MessageList = ({ messages }) => {
       }
     }, [messages]);
     
+    // Auto-expand new videos when detected
+    useEffect(() => {
+      // Check last message for YouTube links
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.from === 'bot') {
+        const youtubeUrlPattern = /(https?:\/\/(?:www\.)?youtube\.com\/watch\?v=[\w-]+|https?:\/\/(?:www\.)?youtu\.be\/[\w-]+)/g;
+        let match;
+        while ((match = youtubeUrlPattern.exec(lastMessage.text)) !== null) {
+          const url = match[0];
+          const videoId = extractVideoId(url);
+          if (videoId) {
+            setExpandedVideos(prev => ({
+              ...prev,
+              [videoId]: true // Auto-expand this video
+            }));
+          }
+        }
+      }
+    }, [messages]);
+    
     // Función para formatear la hora actual
     const formatMessageTime = () => {
       const now = new Date();
       const hours = now.getHours();
       const minutes = now.getMinutes().toString().padStart(2, '0');
       return `${hours}:${minutes}`;
+    };
+    
+    const toggleVideoExpand = (videoId) => {
+      setExpandedVideos(prev => ({
+        ...prev,
+        [videoId]: !prev[videoId]
+      }));
+    };
+    
+    // Parse message text to render video links as styled components
+    const renderMessageContent = (text) => {
+      // Check for YouTube links with any surrounding format
+      // This broader pattern will catch various formats including "[Category: Title](url)"
+      const youtubeUrlPattern = /(https?:\/\/(?:www\.)?youtube\.com\/watch\?v=[\w-]+|https?:\/\/(?:www\.)?youtu\.be\/[\w-]+)/g;
+      
+      // First, check if there's any YouTube link at all
+      if (!youtubeUrlPattern.test(text)) {
+        return text; // No YouTube links found
+      }
+      
+      // For more specific formatting, try to extract category and title if available
+      // Look for patterns like [Category: Title](url) or similar
+      const formattedLinkRegex = /\[(.*?)(?::|：)\s*(.*?)\]\((https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[\w-]+)\)/g;
+      
+      // If no formatted links found, just make the URLs clickable
+      if (!formattedLinkRegex.test(text)) {
+        // Reset the pattern index
+        youtubeUrlPattern.lastIndex = 0;
+        
+        let parts = [];
+        let lastIndex = 0;
+        let match;
+        
+        // Make all YouTube URLs clickable with a simple style
+        while ((match = youtubeUrlPattern.exec(text)) !== null) {
+          // Add text before the match
+          if (match.index > lastIndex) {
+            parts.push(text.substring(lastIndex, match.index));
+          }
+          
+          const url = match[0];
+          const videoId = extractVideoId(url);
+          const isExpanded = expandedVideos[videoId] !== false; // Default to expanded
+          
+          parts.push(
+            <div key={url} style={styles.videoCard}>
+              {isExpanded && (
+                <div style={styles.videoEmbedContainer}>
+                  <iframe 
+                    width="100%" 
+                    height="280" 
+                    src={`https://www.youtube.com/embed/${videoId}`} 
+                    title="YouTube video player" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                    style={styles.videoEmbed}
+                  ></iframe>
+                </div>
+              )}
+              
+              <div 
+                style={styles.videoLinkContainer}
+                onClick={() => toggleVideoExpand(videoId)}
+              >
+                <div style={styles.videoCategory}>
+                  <PlayIcon /> Video de YouTube
+                </div>
+                <div style={styles.videoTitle}>
+                  {isExpanded ? "Ocultar" : "Ver video"}
+                </div>
+              </div>
+            </div>
+          );
+          
+          lastIndex = match.index + url.length;
+        }
+        
+        // Add the remaining text
+        if (lastIndex < text.length) {
+          parts.push(text.substring(lastIndex));
+        }
+        
+        return parts;
+      }
+      
+      // Reset regex lastIndex
+      formattedLinkRegex.lastIndex = 0;
+      
+      let parts = [];
+      let lastIndex = 0;
+      let match;
+      
+      // Process nicely formatted links with category and title
+      while ((match = formattedLinkRegex.exec(text)) !== null) {
+        // Add text before the match
+        if (match.index > lastIndex) {
+          parts.push(text.substring(lastIndex, match.index));
+        }
+        
+        // Extract category, title and URL
+        const [fullMatch, category, title, url] = match;
+        const videoId = extractVideoId(url);
+        const isExpanded = expandedVideos[videoId] !== false; // Default to expanded
+        
+        parts.push(
+          <div key={url} style={styles.videoCard}>
+            {isExpanded && (
+              <div style={styles.videoEmbedContainer}>
+                <iframe 
+                  width="100%" 
+                  height="280" 
+                  src={`https://www.youtube.com/embed/${videoId}`} 
+                  title="YouTube video player" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                  style={styles.videoEmbed}
+                ></iframe>
+              </div>
+            )}
+            
+            <div 
+              style={styles.videoLinkContainer}
+              onClick={() => toggleVideoExpand(videoId)}
+            >
+              <div style={styles.videoCategory}>
+                <PlayIcon /> {category}
+              </div>
+              <div style={styles.videoTitle}>
+                {title} {isExpanded ? "(Ocultar)" : "(Ver)"}
+              </div>
+            </div>
+          </div>
+        );
+        
+        lastIndex = match.index + fullMatch.length;
+      }
+      
+      // Add the remaining text
+      if (lastIndex < text.length) {
+        parts.push(text.substring(lastIndex));
+      }
+      
+      return parts;
     };
     
     return (
@@ -68,7 +260,7 @@ const MessageList = ({ messages }) => {
                   borderRadius: getBorderRadius(msg.from, isFirstInSequence, isLastInSequence),
                 }}>
                   <div style={styles.messageText}>
-                    {msg.text}
+                    {renderMessageContent(msg.text)}
                   </div>
                   
                   {/* Timestamp */}
@@ -205,6 +397,64 @@ const styles = {
     textAlign: "right",
     opacity: 0.8,
   },
+  videoCard: {
+    width: "100%",
+    margin: "8px 0 16px 0",
+  },
+  videoLinkContainer: {
+    display: "flex",
+    flexDirection: "column",
+    margin: "0",
+    padding: "12px 15px",
+    borderRadius: "10px",
+    background: "#f8f0fe",
+    borderLeft: "4px solid #9b59b6",
+    transition: "all 0.2s ease",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+    position: "relative",
+    marginLeft: "0",
+    marginRight: "0",
+    cursor: "pointer",
+    "&:hover": {
+      background: "#f3e5fc",
+      boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
+    },
+    "&:after": {
+      content: '"►"',
+      position: "absolute",
+      right: "10px",
+      bottom: "10px",
+      color: "#9b59b6",
+      fontSize: "12px",
+      opacity: "0.6",
+    },
+  },
+  videoCategory: {
+    fontSize: "13px",
+    color: "#9b59b6",
+    fontWeight: "600",
+    marginBottom: "6px",
+    display: "flex",
+    alignItems: "center",
+  },
+  videoTitle: {
+    fontSize: "14.5px",
+    color: "#444",
+    fontWeight: "500",
+    lineHeight: "1.3",
+  },
+  videoEmbedContainer: {
+    width: "100%",
+    marginBottom: "8px",
+    borderRadius: "10px",
+    overflow: "hidden",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  },
+  videoEmbed: {
+    border: "none",
+    display: "block",
+    backgroundColor: "#000",
+  },
 };
 
 // Añadir los estilos CSS para animaciones
@@ -238,6 +488,16 @@ const createStyles = () => {
       div::-webkit-scrollbar-thumb {
         background-color: rgba(155, 89, 182, 0.2);
         border-radius: 4px;
+      }
+      
+      /* Video link hover effects */
+      a[href^="https://www.youtube.com"] div {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      
+      a[href^="https://www.youtube.com"]:hover div {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       }
     `;
     document.head.appendChild(styleEl);
